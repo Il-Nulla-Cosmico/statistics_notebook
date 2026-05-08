@@ -591,7 +591,7 @@ footer code {
     La <strong>SE</strong> risponde alla domanda: <em>«Quanto è precisa la mia stima della media della popolazione?»</em>
   </p>
   <p>
-    Capire questa distinzione non è un dettaglio tecnico: è essenziale per interpretare correttamente i propri dati, scegliere il grafico più onesto e applicare i test statistici in modo appropriato. In questa breve trattazione vedremo la teoria, le formule, e li calcoleremo insieme in R usando dati biologici reali.
+    Capire questa distinzione non è un dettaglio tecnico: è essenziale per interpretare correttamente i propri dati, scegliere il grafico più onesto e applicare i test statistici in modo appropriato. In questa breve guida vedremo la teoria, le formule, e li calcoleremo in R usando dati biologici reali.
   </p>
 
   <div class="callout info">
@@ -643,8 +643,12 @@ footer code {
 
   <h3>A cosa serve nella pratica</h3>
   <p>
-    La SD è uno strumento <strong>descrittivo</strong>. Va utilizzato quando volete caratterizzare la variabilità biologica di un fenomeno, presentare la distribuzione di un carattere in una popolazione, o definire limiti di riferimento biologici (ad esempio il range «normale» di un parametro fisiologico). Nelle figure, barre di errore che rappresentano la SD mostrano <em>dove si collocano gli individui</em>, non la precisione della stima della media.****** Aggiungere specifica su cosa comunica la barra di errore SD
+    La SD è uno strumento <strong>descrittivo</strong>. Va utilizzato quando si vuole caratterizzare la variabilità biologica di un fenomeno, presentare la distribuzione di un carattere in una popolazione, o definire limiti di riferimento biologici (ad esempio il range «normale» di un parametro fisiologico). Nelle figure, barre di errore che rappresentano la SD mostrano <em>dove si collocano gli individui</em>, non la precisione della stima della media.****** Aggiungere specifica su cosa comunica la barra di errore SD
   </p>
+   <ul class="prop-list">
+    <li>Barre corte: Indicano che i valori del tuo campione sono tutti molto vicini al valore medio. C'è bassa variabilità e i dati sono molto "concentrati".</li>
+     <li>Barre lunghe: Indicano che i valori del campione sono molto sparsi e lontani dalla media. C'è alta variabilità nel fenomeno che stai osservando.</li>    
+  </ul>
 </section>
 
 
