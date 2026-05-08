@@ -689,7 +689,7 @@ footer code {
 
   <h3>A cosa serve nella pratica</h3>
   <p>
-    Lo SE è uno strumento <strong>inferenziale</strong>. Va utilizzato quando si vogliono fare affermazioni sulla media della popolazione, costruire intervalli di confidenza, o confrontare le medie di gruppi diversi (trattamenti, specie, siti, anni). Nelle figure, barre di errore che rappresentano la SE mostrano <em>l'incertezza nella stima della media</em>, che è l'informazione rilevante per i confronti tra gruppi.
+    Lo SE è uno strumento <strong>inferenziale</strong>. Va utilizzato quando si vogliono fare affermazioni sulla media della popolazione, costruire intervalli di confidenza, o confrontare le medie di gruppi diversi (trattamenti, specie, siti, anni). Nelle figure, barre di errore che rappresentano lo SE mostrano <em>l'incertezza nella stima della media</em>, che è l'informazione rilevante per i confronti tra gruppi.
   </p>
 </section>
 
@@ -1020,13 +1020,13 @@ message("✔ Grafici salvati in img/")</code></pre>
     Il <strong>Grafico 1</strong> mostra la distribuzione dei valori individuali con la SD sovrapposta. Le linee tratteggiate abbracciano la grande maggioranza dei petali: questa è la variabilità biologica reale della specie.
   </p>
   <p>
-    Il <strong>Grafico 2</strong> mette a confronto SD e SE sulla stessa scala. La differenza visiva è immediata e spesso sorprendente per chi non ci ha mai riflettuto: entrambe si misurano in centimetri, eppure la SE appare quasi un punto. Questo non significa che i dati siano «più precisi» di quanto mostrino: significa che con $n=50$ la stima della media è molto stabile.
+    Il <strong>Grafico 2</strong> mette a confronto SD e SE sulla stessa scala. La differenza visiva è immediata e spesso sorprendente per chi non ci ha mai riflettuto: entrambe si misurano in centimetri, eppure lo SE appare quasi un punto. Questo non significa che i dati siano «più precisi» di quanto mostrino: significa che con $n=50$ la stima della media è molto stabile.
   </p>
   <p>
-    Il <strong>Grafico 3</strong> è quello più istruttivo sul piano concettuale. Simulando 5000 estrazioni casuali di 50 petali, la distribuzione delle medie ottenute è molto più stretta della distribuzione dei valori individuali. La sua SD è uguale alla SE teorica. La SE è letteralmente la «deviazione standard delle possibili medie campionarie» — ed è per questo che ci dice quanto è precisa la nostra stima.
+    Il <strong>Grafico 3</strong> è quello più istruttivo sul piano concettuale. Simulando 5000 estrazioni casuali di 50 petali, la distribuzione delle medie ottenute è molto più stretta della distribuzione dei valori individuali. La sua SD è uguale allo SE teorico. Lo SE è letteralmente la «deviazione standard delle possibili medie campionarie» — ed è per questo che ci dice quanto è precisa la nostra stima.
   </p>
   <p>
-    Il <strong>Grafico 4</strong> mostra l'uso corretto della SE in un contesto comparativo. Le tre specie di <em>Iris</em> differiscono notevolmente nella lunghezza dei petali, e le barre ±SE rendono evidente questa differenza in modo statisticamente onesto.
+    Il <strong>Grafico 4</strong> mostra l'uso corretto dello SE in un contesto comparativo. Le tre specie di <em>Iris</em> differiscono notevolmente nella lunghezza dei petali, e le barre ±SE rendono evidente questa differenza in modo statisticamente onesto.
   </p>
 </section>
 
@@ -1039,7 +1039,7 @@ message("✔ Grafici salvati in img/")</code></pre>
 
   <h3>Intervalli di Confidenza</h3>
   <p>
-    L'applicazione più immediata della SE è la costruzione dell'<strong>intervallo di confidenza</strong> (IC) della media. Per campioni di dimensione $n \geq 30$ è spesso accettabile l'approssimazione normale:
+    L'applicazione più immediata dello SE è la costruzione dell'<strong>intervallo di confidenza</strong> (IC) della media. Per campioni di dimensione $n \geq 30$ è spesso accettabile l'approssimazione normale:
   </p>
   <div class="formula-box">
     <span class="formula-label">Intervallo di Confidenza al 95% — approssimazione normale</span>
@@ -1057,7 +1057,7 @@ message("✔ Grafici salvati in img/")</code></pre>
     Una regola empirica utile (ma non sostitutiva di un test formale): se gli intervalli di confidenza al 95% di due gruppi <strong>non si sovrappongono</strong>, la differenza è quasi certamente significativa con $p < 0.05$. Se si sovrappongono, la significatività deve essere valutata con un test statistico appropriato.
   </p>
   <p>
-    Il flusso operativo tipico in una pubblicazione sperimentale è:
+    Il flusso operativo tipico in una valutazione statistica sperimentale è:
   </p>
   <ol class="list-plain">
     <li>Calcolare media e SE (o IC 95%) per ciascun gruppo o trattamento.</li>
@@ -1087,10 +1087,7 @@ message("✔ Grafici salvati in img/")</code></pre>
     </li>
   </ul>
 
-  <div class="callout warn">
-    <span class="callout-title">Attenzione al contesto delle pubblicazioni</span>
-    <p>Riportare SE invece di SD nei grafici descrittivi fa sembrare i dati molto meno variabili di quanto siano realmente. Alcuni journal richiedono esplicitamente l'intervallo di confidenza al 95%, che è la rappresentazione più informativa e trasparente. In caso di dubbio, IC 95% è sempre la scelta più raccomandata per i grafici di confronto.</p>
-  </div>
+
 
   <div class="future-note">
     <span class="fn-title">Argomenti per lezioni successive</span>
