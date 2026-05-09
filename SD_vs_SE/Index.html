@@ -1,22 +1,19 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deviazione Standard vs Errore Standard — Lezione Teorico-Pratica</title>
-<meta name="description" content="Lezione teorico-pratica sulla differenza tra Deviazione Standard ed Errore Standard, con esempi in R sul dataset Iris (Iris setosa, lunghezza petali).">
+<title>Standard Deviation vs Standard Error — Theoretical-Practical Lesson</title>
+<meta name="description" content="Theoretical-practical lesson on the difference between Standard Deviation and Standard Error, with R examples on the Iris dataset (Iris setosa, petal length).">
 
-<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<!-- highlight.js per la colorazione del codice R -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
 
-<!-- MathJax per le formule matematiche -->
 <script>
   MathJax = {
     tex: {
@@ -244,7 +241,7 @@ ul.list-plain li { margin-bottom: 0.3rem; }
 }
 
 /* ============================================================
-   CONFRONTO TABLE
+   COMPARISON TABLE
    ============================================================ */
 .comp-table {
   width: 100%;
@@ -319,7 +316,7 @@ ul.list-plain li { margin-bottom: 0.3rem; }
 }
 
 /* ============================================================
-   R CODE BOX — sfondo grigio chiaro, bordo verde
+   R CODE BOX — light gray background, green border
    ============================================================ */
 .r-box {
   background: var(--r-bg);
@@ -384,7 +381,7 @@ ul.list-plain li { margin-bottom: 0.3rem; }
   font-size: 0.815rem;
   line-height: 1.62;
 }
-/* Output atteso */
+/* Expected output */
 .r-output {
   background: var(--r-output-bg);
   color: #a8d8a8;
@@ -518,202 +515,181 @@ footer code {
 </head>
 <body>
 
-
-     HEADER
-     ============================================================ -->
 <header class="site-header">
   <div class="inner">
-    <span class="label">Statistica per le Scienze della Vita</span>
-    <h1>Deviazione Standard <span class="vs">vs</span><br>Errore Standard</h1>
+    <span class="label">Statistics for Life Sciences</span>
+    <h1>Standard Deviation <span class="vs">vs</span><br>Standard Error</h1>
     <p class="subtitle">
-      Lezione teorico-pratica, Con esempi in R sul dataset <em>Iris</em>.
+      Theoretical-practical lesson, with R examples on the <em>Iris</em> dataset.
     </p>
     <div class="meta">
       <span>📅 2025</span>
       <span>🔬 Dataset: <em>Iris setosa</em> — Petal.Length</span>
-      <span>💻 R base + ggplot2</span>
+      <span>💻 Base R + ggplot2</span>
       <span>⏱ ~15 min</span>
     </div>
   </div>
 </header>
 
-<!-- ============================================================
-     STICKY NAV / INDICE
-     ============================================================ -->
-<nav class="toc" aria-label="Indice della lezione">
+<nav class="toc" aria-label="Table of contents">
   <div class="toc-inner">
-    <span class="toc-label">Indice</span>
-    <a href="#intro">Introduzione</a>
-    <a href="#sd">Deviazione Standard</a>
-    <a href="#se">Errore Standard</a>
-    <a href="#confronto">Confronto</a>
-    <a href="#pratica">Esempio in R</a>
-    <a href="#interpretazione">Interpretazione</a>
-    <a href="#inferenza">Uso Inferenziale</a>
-    <a href="#conclusioni">Conclusioni</a>
+    <span class="toc-label">Index</span>
+    <a href="#intro">Introduction</a>
+    <a href="#sd">Standard Deviation</a>
+    <a href="#se">Standard Error</a>
+    <a href="#confronto">Comparison</a>
+    <a href="#pratica">R Example</a>
+    <a href="#interpretazione">Interpretation</a>
+    <a href="#inferenza">Inferential Use</a>
+    <a href="#conclusioni">Conclusions</a>
   </div>
 </nav>
 
-<!-- ============================================================
-     CONTENUTO PRINCIPALE
-     ============================================================ -->
 <main>
 <div class="container">
 
 
-<!-- ============================================================
-     1. INTRODUZIONE
-     ============================================================ -->
 <section id="intro">
-  <h2>Introduzione</h2>
+  <h2>Introduction</h2>
   <p>
-    Nella letteratura scientifica due indici vengono frequentemente confusi oppure usati come sinonimi: la <strong>Deviazione Standard</strong> (SD, dall'inglese <em>Standard Deviation</em>) e l'<strong>Errore Standard della Media</strong> (SE, dall'inglese <em>Standard Error of the Mean</em>). Entrambi si esprimono nelle stesse unità dei dati e appaiono spesso nelle stesse posizioni (barre d'errore nei grafici, media ± valore nel testo), eppure rispondono a domande fondamentalmente diverse.
+    In scientific literature, two indices are frequently confused or used as synonyms: the <strong>Standard Deviation</strong> (SD) and the <strong>Standard Error of the Mean</strong> (SE). Both are expressed in the same units as the data and often appear in the same places (error bars in graphs, mean ± value in the text), yet they answer fundamentally different questions.
   </p>
   <p>
-    La <strong>SD</strong> risponde alla domanda: <em>«Quanto variano i singoli individui nella mia popolazione o nel mio campione?»</em><br>
-    La <strong>SE</strong> risponde alla domanda: <em>«Quanto è precisa la mia stima della media della popolazione?»</em>
+    The <strong>SD</strong> answers the question: <em>"How much do individual subjects vary in my population or sample?"</em><br>
+    The <strong>SE</strong> answers the question: <em>"How precise is my estimate of the population mean?"</em>
   </p>
   <p>
-    Capire questa distinzione non è un dettaglio tecnico: è essenziale per interpretare correttamente i propri dati, scegliere il grafico più onesto e applicare i test statistici in modo appropriato. In questa breve guida vedremo la teoria, le formule, e li calcoleremo in R usando dati biologici reali.
+    Understanding this distinction is not just a technical detail: it is essential for properly interpreting your data, choosing the most honest graph, and applying statistical tests appropriately. In this short guide, we will look at the theory, the formulas, and calculate them in R using real biological data.
   </p>
 
   <div class="callout info">
-    <span class="callout-title">Nota preliminare</span>
-    <p>Questa trattazione assume familiarità con i concetti di media campionaria e campionamento casuale. Concetti come distribuzione campionaria, Teorema Centrale del Limite e test <em>t</em> sono menzionati ma saranno trattati in lezioni dedicate.</p>
+    <span class="callout-title">Preliminary note</span>
+    <p>This discussion assumes familiarity with the concepts of sample mean and random sampling. Concepts like sampling distribution, Central Limit Theorem, and <em>t</em>-tests are mentioned but will be covered in dedicated lessons.</p>
   </div>
 </section>
 
 
-<!-- ============================================================
-     2. DEVIAZIONE STANDARD
-     ============================================================ -->
 <section id="sd">
-  <h2>La Deviazione Standard (SD)</h2>
+  <h2>Standard Deviation (SD)</h2>
 
-  <h3>Definizione</h3>
+  <h3>Definition</h3>
   <p>
-    La Deviazione Standard campionaria <strong>misura la dispersione dei valori individuali attorno alla media campionaria</strong>. Ci dice quanto, in media, ogni singola osservazione si discosta dalla media del gruppo. È un indice della <em>variabilità intrinseca</em> del fenomeno studiato.
+    The sample Standard Deviation <strong>measures the dispersion of individual values around the sample mean</strong>. It tells us how much, on average, each single observation deviates from the group mean. It is an index of the <em>intrinsic variability</em> of the studied phenomenon.
   </p>
   <p>
-    In biologia questo indice è onnipresente: la variabilità della lunghezza delle ali in una specie di insetti, la distribuzione della resa per pianta in un appezzamento agricolo, il peso corporeo in una popolazione di vertebrati. Tutte queste variabili hanno una loro SD che descrive quanto siano «eterogenei» gli individui del campione.
+    In biology, this index is very common: the variability of wing length in an insect species, the distribution of yield per plant in an agricultural plot, the body weight in a vertebrate population. All these variables have their own SD that describes how "heterogeneous" the individuals in the sample are.
   </p>
 
   <h3>Formula</h3>
   <div class="formula-box">
-    <span class="formula-label">Deviazione Standard campionaria</span>
+    <span class="formula-label">Sample Standard Deviation</span>
     $$s = \sqrt{\dfrac{\displaystyle\sum_{i=1}^{n}(x_i - \bar{x})^2}{n-1}}$$
     <p>
-      Dove: $x_i$ = valore dell'$i$-esima osservazione &ensp;|&ensp;
-      $\bar{x}$ = media campionaria &ensp;|&ensp;
-      $n$ = numerosità del campione &ensp;|&ensp;
-      $n-1$ = gradi di libertà (correzione di Bessel)
+      Where: $x_i$ = value of the $i$-th observation &ensp;|&ensp;
+      $\bar{x}$ = sample mean &ensp;|&ensp;
+      $n$ = sample size &ensp;|&ensp;
+      $n-1$ = degrees of freedom (Bessel's correction)
     </p>
   </div>
 
   <div class="callout info">
-    <span class="callout-title">Perché n − 1 e non n?</span>
-    <p>Dividere per $n-1$ anziché per $n$ rende la varianza campionaria uno <em>stimatore non distorto</em> della varianza della popolazione $\sigma^2$. Questo accade perché la media campionaria $\bar{x}$ viene stimata dagli stessi dati usati per calcolare la SD, «consumando» un grado di libertà. Questo aspetto sarà approfondito in una lezione dedicata agli stimatori.</p>
+    <span class="callout-title">Why n − 1 and not n?</span>
+    <p>Dividing by $n-1$ instead of $n$ makes the sample variance an <em>unbiased estimator</em> of the population variance $\sigma^2$. This happens because the sample mean $\bar{x}$ is estimated from the same data used to calculate the SD, "consuming" one degree of freedom. This aspect will be detailed in a lesson dedicated to estimators.</p>
   </div>
 
-  <h3>Proprietà principali</h3>
+  <h3>Main properties</h3>
   <ul class="prop-list">
-    <li>Si misura nella <strong>stessa unità dei dati originali</strong> (es. cm, g, individui/trappola).</li>
-    <li>È <strong>sempre non negativa</strong>; vale zero solo se tutti i valori sono identici.</li>
-    <li>Non dipende sistematicamente da $n$: con campioni più grandi, la SD converge alla deviazione standard della popolazione $\sigma$, ma non diminuisce sistematicamente.</li>
-    <li>Per distribuzioni approssimativamente normali, circa il <strong>68%</strong> dei valori cade nell'intervallo $\bar{x} \pm 1 \cdot s$, e circa il <strong>95%</strong> nell'intervallo $\bar{x} \pm 2 \cdot s$.</li>
-    <li>È <strong>sensibile ai valori anomali</strong> (outlier): un valore estremo può gonfiare notevolmente la SD.</li>
+    <li>It is measured in the <strong>same unit as the original data</strong> (e.g., cm, g, individuals/trap).</li>
+    <li>It is <strong>always non-negative</strong>; it is zero only if all values are identical.</li>
+    <li>It does not systematically depend on $n$: with larger samples, the SD converges to the population standard deviation $\sigma$, but it does not systematically decrease.</li>
+    <li>For approximately normal distributions, about <strong>68%</strong> of the values fall in the interval $\bar{x} \pm 1 \cdot s$, and about <strong>95%</strong> in the interval $\bar{x} \pm 2 \cdot s$.</li>
+    <li>It is <strong>sensitive to outliers</strong>: an extreme value can considerably inflate the SD.</li>
   </ul>
 
-  <h3>A cosa serve nella pratica</h3>
+  <h3>Practical use</h3>
   <p>
-    La SD è uno strumento <strong>descrittivo</strong>. Va utilizzato quando si vuole caratterizzare la variabilità biologica di un fenomeno, presentare la distribuzione di un carattere in una popolazione, o definire limiti di riferimento biologici (ad esempio il range «normale» di un parametro fisiologico). Nelle figure, barre di errore che rappresentano la SD mostrano <em>dove si collocano gli individui</em>, non la precisione della stima della media.
+    The SD is a <strong>descriptive</strong> tool. It should be used when you want to characterize the biological variability of a phenomenon, present the distribution of a trait in a population, or define biological reference limits (for example, the "normal" range of a physiological parameter). In figures, error bars representing the SD show <em>where the individuals are located</em>, not the precision of the mean estimate.
   </p>
    <ul class="prop-list">
-    <li><strong>Barre corte</strong>: Indicano che i valori del tuo campione sono tutti molto vicini al valore medio. C'è bassa variabilità e i dati sono molto "concentrati".</li>
-     <li><strong>Barre lunghe</strong>: Indicano che i valori del campione sono molto sparsi e lontani dalla media. C'è alta variabilità nel fenomeno che stai osservando.</li>    
+    <li><strong>Short bars</strong>: Indicate that the values of your sample are all very close to the mean value. There is low variability and the data is highly "concentrated".</li>
+     <li><strong>Long bars</strong>: Indicate that the sample values are very spread out and far from the mean. There is high variability in the observed phenomenon.</li>   
   </ul>
 </section>
 
 
-<!-- ============================================================
-     3. ERRORE STANDARD
-     ============================================================ -->
 <section id="se">
-  <h2>L'Errore Standard della Media (SE)</h2>
+  <h2>Standard Error of the Mean (SE)</h2>
 
-  <h3>Definizione</h3>
+  <h3>Definition</h3>
   <p>
-    L'Errore Standard della Media <strong>stima la precisione con cui la media campionaria $\bar{x}$ approssima la vera media della popolazione $\mu$</strong>. In termini formali, è la deviazione standard della <em>distribuzione campionaria delle medie</em>: se ripetessimo il campionamento molte volte e calcolassimo ogni volta la media, quella sequenza di medie avrebbe una propria deviazione standard — e quella è esattamente lo SE.
+    The Standard Error of the Mean <strong>estimates the precision with which the sample mean $\bar{x}$ approximates the true population mean $\mu$</strong>. Formally, it is the standard deviation of the <em>sampling distribution of the means</em>: if we repeated the sampling many times and calculated the mean each time, that sequence of means would have its own standard deviation — and that is exactly the SE.
   </p>
   <p>
-    Immaginate di campionare la lunghezza dei petali di 50 esemplari di <em>Iris setosa</em> in dieci diversi siti: otterreste dieci medie campionarie leggermente diverse. Lo SE quantifica quanto variano queste medie attorno alla vera media della specie.
+    Imagine sampling the petal length of 50 <em>Iris setosa</em> specimens across ten different sites: you would get ten slightly different sample means. The SE quantifies how much these means vary around the true mean of the species.
   </p>
 
   <h3>Formula</h3>
   <div class="formula-box">
-    <span class="formula-label">Errore Standard della Media</span>
+    <span class="formula-label">Standard Error of the Mean</span>
     $$SE_{\bar{x}} = \dfrac{s}{\sqrt{n}}$$
     <p>
-      Dove: $s$ = deviazione standard campionaria &ensp;|&ensp; $n$ = numerosità del campione
+      Where: $s$ = sample standard deviation &ensp;|&ensp; $n$ = sample size
     </p>
   </div>
   <p>
-    La formula rivela immediatamente una proprietà cruciale: lo SE è sempre <strong>più piccola della SD</strong> (poiché $\sqrt{n} > 1$ per $n > 1$), e diminuisce proporzionalmente a $1/\sqrt{n}$. Per dimezzare lo SE occorre <em>quadruplicare</em> la dimensione del campione.
+    The formula immediately reveals a crucial property: the SE is always <strong>smaller than the SD</strong> (since $\sqrt{n} > 1$ for $n > 1$), and it decreases proportionally to $1/\sqrt{n}$. To halve the SE, you need to <em>quadruple</em> the sample size.
   </p>
 
-  <h3>Proprietà principali</h3>
+  <h3>Main properties</h3>
   <ul class="prop-list">
-    <li>Si misura nella <strong>stessa unità dei dati</strong>, come la SD.</li>
-    <li><strong>Diminuisce all'aumentare di $n$</strong>: più osservazioni raccogliamo, più precisa è la stima della media.</li>
-    <li>Dipende sia dalla variabilità intrinseca dei dati ($s$) sia dalla quantità di osservazioni ($n$).</li>
-    <li>Fornisce la base per gli <strong>intervalli di confidenza</strong>: $IC_{95\%} \approx \bar{x} \pm 1.96 \cdot SE$ (per grandi campioni).</li>
-    <li>Per campioni piccoli si usa il quantile della distribuzione <em>t</em> di Student: $\bar{x} \pm t_{\alpha/2,\, n-1} \cdot SE$.</li>
+    <li>It is measured in the <strong>same unit as the data</strong>, like the SD.</li>
+    <li><strong>It decreases as $n$ increases</strong>: the more observations we collect, the more precise the estimate of the mean is.</li>
+    <li>It depends both on the intrinsic variability of the data ($s$) and on the amount of observations ($n$).</li>
+    <li>It provides the basis for <strong>confidence intervals</strong>: $CI_{95\%} \approx \bar{x} \pm 1.96 \cdot SE$ (for large samples).</li>
+    <li>For small samples, the quantile of Student's <em>t</em> distribution is used: $\bar{x} \pm t_{\alpha/2,\, n-1} \cdot SE$.</li>
   </ul>
 
-  <h3>A cosa serve nella pratica</h3>
+  <h3>Practical use</h3>
   <p>
-    Lo SE è uno strumento <strong>inferenziale</strong>. Va utilizzato quando si vogliono fare affermazioni sulla media della popolazione, costruire intervalli di confidenza, o confrontare le medie di gruppi diversi (trattamenti, specie, siti, anni). Nelle figure, barre di errore che rappresentano lo SE mostrano <em>l'incertezza nella stima della media</em>, che è l'informazione rilevante per i confronti tra gruppi.
+    The SE is an <strong>inferential</strong> tool. It should be used when you want to make statements about the population mean, build confidence intervals, or compare the means of different groups (treatments, species, sites, years). In figures, error bars representing the SE show <em>the uncertainty in the estimate of the mean</em>, which is the relevant information for group comparisons.
   </p>
 </section>
 
 
-<!-- ============================================================
-     4. CONFRONTO SD vs SE
-     ============================================================ -->
 <section id="confronto">
-  <h2>Confronto tra SD e SE</h2>
+  <h2>Comparison between SD and SE</h2>
   <p>
-    La tabella seguente riassume le differenze chiave. Tenerle presenti facilita enormemente la scelta corretta nella pratica quotidiana.
+    The following table summarizes the key differences. Keeping them in mind greatly facilitates making the right choice in everyday practice.
   </p>
 
   <table class="comp-table">
     <thead>
       <tr>
-        <th>Aspetto</th>
-        <th>Deviazione Standard (SD)</th>
-        <th>Errore Standard (SE)</th>
+        <th>Aspect</th>
+        <th>Standard Deviation (SD)</th>
+        <th>Standard Error (SE)</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Cosa misura</strong></td>
-        <td>Variabilità dei singoli valori osservati</td>
-        <td>Precisione della stima della media</td>
+        <td><strong>What it measures</strong></td>
+        <td>Variability of the individual observed values</td>
+        <td>Precision of the mean estimate</td>
       </tr>
       <tr>
-        <td><strong>Domanda a cui risponde</strong></td>
-        <td>«Quanto variano gli individui?»</td>
-        <td>«Quanto è precisa la mia media?»</td>
+        <td><strong>Question it answers</strong></td>
+        <td>"How much do individuals vary?"</td>
+        <td>"How precise is my mean?"</td>
       </tr>
       <tr>
-        <td><strong>Effetto di n</strong></td>
-        <td>Stabile (converge a $\sigma$)</td>
-        <td>Diminuisce come $1/\sqrt{n}$</td>
+        <td><strong>Effect of n</strong></td>
+        <td>Stable (converges to $\sigma$)</td>
+        <td>Decreases as $1/\sqrt{n}$</td>
       </tr>
       <tr>
-        <td><strong>Tipo di statistica</strong></td>
-        <td>Descrittiva</td>
-        <td>Inferenziale</td>
+        <td><strong>Type of statistic</strong></td>
+        <td>Descriptive</td>
+        <td>Inferential</td>
       </tr>
       <tr>
         <td><strong>Formula</strong></td>
@@ -721,111 +697,100 @@ footer code {
         <td>$SE = s/\sqrt{n}$</td>
       </tr>
       <tr>
-        <td><strong>Barre d'errore nelle figure</strong></td>
-        <td>Per descrivere la dispersione dei dati</td>
-        <td>Per confronti tra medie di gruppi diversi</td>
+        <td><strong>Error bars in figures</strong></td>
+        <td>To describe the dispersion of the data</td>
+        <td>For comparisons between means of different groups</td>
       </tr>
       <tr>
-        <td><strong>Rapporto reciproco</strong></td>
-        <td>SD ≥ SE sempre</td>
+        <td><strong>Mutual relationship</strong></td>
+        <td>SD ≥ SE always</td>
         <td>SE = SD / $\sqrt{n}$ ≤ SD</td>
       </tr>
     </tbody>
   </table>
 
   <div class="callout warn">
-    <span class="callout-title">Errore comune nella letteratura scientifica</span>
-    <p>Molti articoli riportano barre d'errore senza specificare se rappresentano SD o SE. Poiché lo SE è sempre più piccola della SD, riportare SE in un grafico descrittivo fa sembrare i dati molto meno variabili di quanto siano. Alcune riviste impongono l'uso dell'intervallo di confidenza al 95% proprio per chiarezza. Verificate sempre la legenda delle figure.</p>
+    <span class="callout-title">Common mistake in scientific literature</span>
+    <p>Many articles report error bars without specifying whether they represent SD or SE. Since the SE is always smaller than the SD, reporting SE in a descriptive graph makes the data seem much less variable than it is. Some journals mandate the use of the 95% confidence interval precisely for clarity. Always check the figure legend.</p>
   </div>
 </section>
 
 
-<!-- ============================================================
-     5. ESEMPIO PRATICO IN R
-     ============================================================ -->
 <section id="pratica">
-  <h2>Esempio Pratico in R</h2>
+  <h2>Practical Example in R</h2>
   <p>
-    Utilizziamo il dataset <code>iris</code>, integrato di default in R, concentrandoci sulla specie <em>Iris setosa</em> e sulla variabile <strong>lunghezza del petalo</strong> (<code>Petal.Length</code>). Il campione è composto da $n = 50$ misurazioni espresse in centimetri. È un dataset semplice, biologicamente reale, e perfetto per illustrare concretamente i due indici.
+    We use the <code>iris</code> dataset, built into R by default, focusing on the <em>Iris setosa</em> species and the <strong>petal length</strong> variable (<code>Petal.Length</code>). The sample consists of $n = 50$ measurements expressed in centimeters. It is a simple, biologically real dataset, perfect for concretely illustrating the two indices.
   </p>
   <p>
-    Gli script R completi e commentati sono disponibili nella cartella <code>R/</code> del repository e si scaricano con i pulsanti nelle intestazioni dei riquadri grigi qui sotto.
+    The complete and commented R scripts are available in the <code>R/</code> folder of the repository and can be downloaded using the buttons in the headers of the gray boxes below.
   </p>
 
-  <!-- ─────────────────────────────────────────────
-       R BOX 1 — CALCOLO
-       ───────────────────────────────────────────── -->
   <div class="r-box">
     <div class="r-box-header">
       <div class="r-box-title">
         <span class="r-tag">R</span>
-        <span>Script 01 — Calcolo di SD e SE</span>
+        <span>Script 01 — Calculating SD and SE</span>
         <span style="color:#888; font-weight:400">·</span>
         <span style="color:#888; font-weight:400; font-size:0.75rem">R/01_calcolo_sd_se.R</span>
       </div>
-      <a href="R/01_calcolo_sd_se.R" class="r-box-link" download>↓ Scarica</a>
+      <a href="R/01_calcolo_sd_se.R" class="r-box-link" download>↓ Download</a>
     </div>
-<pre><code class="language-r"># Caricamento dataset integrato in R
+<pre><code class="language-r"># Load built-in R dataset
 data(iris)
 
-# Estrazione: Iris setosa, lunghezza del petalo
+# Extraction: Iris setosa, petal length
 setosa_pl &lt;- iris[iris$Species == "setosa", "Petal.Length"]
 
-# --- Parametri base ---
-n     &lt;- length(setosa_pl)         # numerosità campionaria
-media &lt;- mean(setosa_pl)           # media campionaria
+# --- Basic parameters ---
+n     &lt;- length(setosa_pl)         # sample size
+media &lt;- mean(setosa_pl)           # sample mean
 
-# --- Deviazione Standard (SD) ---
-# sd() usa la correzione di Bessel (n-1): stimatore non distorto
+# --- Standard Deviation (SD) ---
+# sd() uses Bessel's correction (n-1): unbiased estimator
 sd_val &lt;- sd(setosa_pl)
 
-# Verifica manuale
+# Manual check
 sd_manuale &lt;- sqrt(sum((setosa_pl - media)^2) / (n - 1))
 # all.equal(sd_val, sd_manuale)  →  TRUE
 
-# --- Errore Standard della Media (SE) ---
-# Non esiste una funzione dedicata in R base
+# --- Standard Error of the Mean (SE) ---
+# There is no dedicated function in base R
 se_val &lt;- sd_val / sqrt(n)
 
-# --- Intervallo di Confidenza al 95% ---
-t_critico &lt;- qt(0.975, df = n - 1)   # distribuzione t di Student
+# --- 95% Confidence Interval ---
+t_critico &lt;- qt(0.975, df = n - 1)   # Student's t distribution
 ic_low    &lt;- media - t_critico * se_val
 ic_high   &lt;- media + t_critico * se_val
 
 # --- Output ---
 cat(sprintf("  n                            : %d\n", n))
-cat(sprintf("  Media (x̄)                    : %.4f cm\n", media))
-cat(sprintf("  Deviazione Standard (SD)     : %.4f cm\n", sd_val))
-cat(sprintf("  Errore Standard (SE)         : %.4f cm\n", se_val))
-cat(sprintf("  Media ± SD                   : [%.4f – %.4f] cm\n",
+cat(sprintf("  Mean (x̄)                     : %.4f cm\n", media))
+cat(sprintf("  Standard Deviation (SD)      : %.4f cm\n", sd_val))
+cat(sprintf("  Standard Error (SE)          : %.4f cm\n", se_val))
+cat(sprintf("  Mean ± SD                    : [%.4f – %.4f] cm\n",
             media - sd_val, media + sd_val))
-cat(sprintf("  Media ± SE                   : [%.4f – %.4f] cm\n",
+cat(sprintf("  Mean ± SE                    : [%.4f – %.4f] cm\n",
             media - se_val, media + se_val))
-cat(sprintf("  IC 95%% (t di Student, df=%d) : [%.4f – %.4f] cm\n",
+cat(sprintf("  95%% CI (Student's t, df=%d)  : [%.4f – %.4f] cm\n",
             n - 1, ic_low, ic_high))</code></pre>
-    <div class="r-output"><span class="r-output-label">Output atteso</span>  n                            : 50
-  Media (x̄)                    : 1.4620 cm
-  Deviazione Standard (SD)     : 0.1737 cm
-  Errore Standard (SE)         : 0.0246 cm
-  Media ± SD                   : [1.2883 – 1.6357] cm
-  Media ± SE                   : [1.4374 – 1.4866] cm
-  IC 95% (t di Student, df=49) : [1.4126 – 1.5114] cm</div>
-  </div><!-- end r-box 1 -->
-
-  <!-- ─────────────────────────────────────────────
-       R BOX 2 — GRAFICI
-       ───────────────────────────────────────────── -->
-  <div class="r-box">
+    <div class="r-output"><span class="r-output-label">Expected Output</span>  n                            : 50
+  Mean (x̄)                     : 1.4620 cm
+  Standard Deviation (SD)      : 0.1737 cm
+  Standard Error (SE)          : 0.0246 cm
+  Mean ± SD                    : [1.2883 – 1.6357] cm
+  Mean ± SE                    : [1.4374 – 1.4866] cm
+  95% CI (Student's t, df=49)  : [1.4126 – 1.5114] cm</div>
+  </div><div class="r-box">
     <div class="r-box-header">
       <div class="r-box-title">
         <span class="r-tag">R</span>
-        <span>Script 02 — Visualizzazione grafica</span>
+        <span>Script 02 — Graphical visualization</span>
         <span style="color:#888; font-weight:400">·</span>
         <span style="color:#888; font-weight:400; font-size:0.75rem">R/02_grafici_sd_se.R</span>
       </div>
-      <a href="R/02_grafici_sd_se.R" class="r-box-link" download>↓ Scarica</a>
+      <a href="R/02_grafici_sd_se.R" class="r-box-link" download>↓ Download</a>
     </div>
-<pre><code class="language-r"># Dipendenze: ggplot2
+<pre><code class="language-r"># Dependencies: ggplot2
 # install.packages("ggplot2")
 library(ggplot2)
 if (!dir.exists("img")) dir.create("img")
@@ -837,7 +802,7 @@ sd_val &lt;- sd(setosa_pl);     se_val &lt;- sd_val / sqrt(n)
 df     &lt;- data.frame(x = setosa_pl)
 col_sd &lt;- "#C0623C"; col_se &lt;- "#2d6a4f"; col_med &lt;- "#1A1A2E"
 
-# --- GRAFICO 1: Distribuzione + ±SD ---
+# --- GRAPH 1: Distribution + ±SD ---
 p1 &lt;- ggplot(df, aes(x = x)) +
   geom_histogram(aes(y = after_stat(density)),
                  binwidth=0.1, fill="#a8d8b0", color="white") +
@@ -850,28 +815,28 @@ p1 &lt;- ggplot(df, aes(x = x)) +
            arrow=arrow(ends="both", length=unit(0.2,"cm"))) +
   annotate("text", x=media, y=2.75, fontface="bold", color=col_sd, size=4,
            label=paste0("SD = ±", round(sd_val,3), " cm")) +
-  labs(title="Distribuzione dei valori individuali",
-       subtitle="La SD descrive la dispersione delle singole osservazioni",
-       x="Lunghezza petalo (cm)", y="Densità") +
+  labs(title="Distribution of individual values",
+       subtitle="The SD describes the dispersion of individual observations",
+       x="Petal length (cm)", y="Density") +
   theme_minimal(base_size=12)
 
-# --- GRAFICO 2: SD vs SE come barre d'errore ---
+# --- GRAPH 2: SD vs SE as error bars ---
 df_err &lt;- data.frame(
-  indice = factor(c("Media ± SD","Media ± SE"),
-                  levels=c("Media ± SD","Media ± SE")),
+  indice = factor(c("Mean ± SD","Mean ± SE"),
+                  levels=c("Mean ± SD","Mean ± SE")),
   media  = c(media, media),
   lower  = c(media-sd_val, media-se_val),
   upper  = c(media+sd_val, media+se_val))
 p2 &lt;- ggplot(df_err, aes(x=indice, y=media, color=indice,
                            ymin=lower, ymax=upper)) +
   geom_point(size=4) + geom_errorbar(width=0.15, linewidth=1.3) +
-  scale_color_manual(values=c("Media ± SD"=col_sd,"Media ± SE"=col_se)) +
-  labs(title="Confronto visivo: SD vs SE",
-       subtitle="SE = SD / √n: è strutturalmente più piccola della SD",
-       x=NULL, y="Lunghezza petalo (cm)") +
+  scale_color_manual(values=c("Mean ± SD"=col_sd,"Mean ± SE"=col_se)) +
+  labs(title="Visual comparison: SD vs SE",
+       subtitle="SE = SD / √n: it is structurally smaller than the SD",
+       x=NULL, y="Petal length (cm)") +
   theme_minimal(base_size=12) + theme(legend.position="none")
 
-# --- GRAFICO 3: Distribuzione campionaria (bootstrap) ---
+# --- GRAPH 3: Sampling distribution (bootstrap) ---
 set.seed(42)
 medie_sim &lt;- replicate(5000, mean(sample(setosa_pl, n, replace=TRUE)))
 p3 &lt;- ggplot(data.frame(m=medie_sim), aes(x=m)) +
@@ -881,12 +846,12 @@ p3 &lt;- ggplot(data.frame(m=medie_sim), aes(x=m)) +
   geom_vline(xintercept=media, color=col_med, linewidth=1.2) +
   geom_vline(xintercept=c(media-se_val, media+se_val),
              color=col_se, linetype="dashed", linewidth=1) +
-  labs(title="Distribuzione campionaria delle medie (bootstrap, n=5000)",
-       subtitle="La SE è la SD di questa distribuzione",
-       x="Media campionaria (cm)", y="Densità") +
+  labs(title="Sampling distribution of the means (bootstrap, n=5000)",
+       subtitle="The SE is the SD of this distribution",
+       x="Sample mean (cm)", y="Density") +
   theme_minimal(base_size=12)
 
-# --- GRAFICO 4: Confronto tra le tre specie (uso inferenziale) ---
+# --- GRAPH 4: Comparison between the three species (inferential use) ---
 df_sp &lt;- do.call(data.frame,
   aggregate(Petal.Length ~ Species, data=iris,
     FUN=function(x) c(mean=mean(x), se=sd(x)/sqrt(length(x)))))
@@ -898,264 +863,249 @@ p4 &lt;- ggplot(df_sp, aes(x=Species, y=mean, fill=Species)) +
   geom_point(size=3, color="grey20") +
   scale_fill_manual(values=c("setosa"="#2d6a4f",
                               "versicolor"="#C0623C","virginica"="#6b8cba")) +
-  labs(title="Media ± SE della lunghezza del petalo nelle tre specie di Iris",
-       subtitle="Barre d'errore = ±1 SE — uso corretto nei grafici comparativi",
-       x=NULL, y="Lunghezza petalo (cm)", caption="Dati: iris (Fisher 1936)") +
+  labs(title="Mean ± SE of petal length in the three Iris species",
+       subtitle="Error bars = ±1 SE — correct use in comparative graphs",
+       x=NULL, y="Petal length (cm)", caption="Data: iris (Fisher 1936)") +
   theme_minimal(base_size=12) + theme(legend.position="none")
 
-# Salvataggio
+# Saving
 ggsave("img/grafico1_distribuzione_sd.png", p1, width=8, height=5, dpi=150, bg="white")
 ggsave("img/grafico2_sd_vs_se.png",         p2, width=6, height=5, dpi=150, bg="white")
 ggsave("img/grafico3_bootstrap_se.png",     p3, width=8, height=5, dpi=150, bg="white")
 ggsave("img/grafico4_confronto_specie.png", p4, width=8, height=5, dpi=150, bg="white")
-message("✔ Grafici salvati in img/")</code></pre>
-  </div><!-- end r-box 2 -->
-
-  <h3>Grafici prodotti dagli script</h3>
+message("✔ Graphs saved in img/")</code></pre>
+  </div><h3>Graphs produced by the scripts</h3>
   <p>
-    Eseguendo lo Script 02 in R vengono salvati quattro grafici nella cartella <code>img/</code>. Di seguito la loro descrizione interpretativa.
+    By running Script 02 in R, four graphs are saved in the <code>img/</code> folder. Below is their interpretive description.
   </p>
 
   <div class="figures-grid">
     <figure class="fig">
       <img src="img/grafico1_distribuzione_sd.png"
-           alt="Distribuzione dei valori individuali con SD"
+           alt="Distribution of individual values with SD"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="fig-placeholder" style="display:none">
         📊 grafico1_distribuzione_sd.png<br>
-        <small>eseguire Script 02 per generare</small>
+        <small>run Script 02 to generate</small>
       </div>
       <figcaption class="fig-caption">
-        <strong>Grafico 1.</strong> Istogramma e curva di densità della lunghezza dei petali di <em>I. setosa</em>. La linea nera indica la media (1.46 cm); le linee tratteggiate arancio delimitano $\bar{x} \pm SD$ (1.29–1.64 cm). La SD descrive la dispersione degli individui.
+        <strong>Graph 1.</strong> Histogram and density curve of <em>I. setosa</em> petal length. The black line indicates the mean (1.46 cm); the dashed orange lines delimit $\bar{x} \pm SD$ (1.29–1.64 cm). The SD describes the dispersion of individuals.
       </figcaption>
     </figure>
 
     <figure class="fig">
       <img src="img/grafico2_sd_vs_se.png"
-           alt="Confronto SD vs SE come barre d'errore"
+           alt="Comparison SD vs SE as error bars"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="fig-placeholder" style="display:none">
         📊 grafico2_sd_vs_se.png<br>
-        <small>eseguire Script 02 per generare</small>
+        <small>run Script 02 to generate</small>
       </div>
       <figcaption class="fig-caption">
-        <strong>Grafico 2.</strong> SD (arancio) vs SE (verde) sulla stessa scala. La SE (±0.025 cm) appare quasi un punto rispetto alla SD (±0.174 cm). Il rapporto è esattamente $\sqrt{50} \approx 7$.
+        <strong>Graph 2.</strong> SD (orange) vs SE (green) on the same scale. The SE (±0.025 cm) looks almost like a dot compared to the SD (±0.174 cm). The ratio is exactly $\sqrt{50} \approx 7$.
       </figcaption>
     </figure>
 
     <figure class="fig">
       <img src="img/grafico3_bootstrap_se.png"
-           alt="Distribuzione campionaria delle medie (bootstrap)"
+           alt="Sampling distribution of the means (bootstrap)"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="fig-placeholder" style="display:none">
         📊 grafico3_bootstrap_se.png<br>
-        <small>eseguire Script 02 per generare</small>
+        <small>run Script 02 to generate</small>
       </div>
       <figcaption class="fig-caption">
-        <strong>Grafico 3.</strong> Distribuzione di 5000 medie campionarie (bootstrap). La SD di questa distribuzione è pari alla SE teorica. È la dimostrazione empirica di cosa <em>è</em> la SE: l'incertezza della media campionaria.
+        <strong>Graph 3.</strong> Distribution of 5000 sample means (bootstrap). The SD of this distribution is equal to the theoretical SE. It is the empirical demonstration of what the SE <em>is</em>: the uncertainty of the sample mean.
       </figcaption>
     </figure>
 
     <figure class="fig">
       <img src="img/grafico4_confronto_specie.png"
-           alt="Confronto medie tre specie con barre SE"
+           alt="Comparison of means of three species with SE bars"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="fig-placeholder" style="display:none">
         📊 grafico4_confronto_specie.png<br>
-        <small>eseguire Script 02 per generare</small>
+        <small>run Script 02 to generate</small>
       </div>
       <figcaption class="fig-caption">
-        <strong>Grafico 4.</strong> Medie ±SE della lunghezza del petalo nelle tre specie. Questo è il corretto uso inferenziale della SE: le barre d'errore esprimono l'incertezza sulla media, non la dispersione degli individui.
+        <strong>Graph 4.</strong> Mean ±SE of petal length in the three species. This is the correct inferential use of the SE: the error bars express the uncertainty about the mean, not the dispersion of individuals.
       </figcaption>
     </figure>
   </div>
 </section>
 
 
-<!-- ============================================================
-     6. INTERPRETAZIONE
-     ============================================================ -->
 <section id="interpretazione">
-  <h2>Come Interpretare i Risultati</h2>
+  <h2>How to Interpret the Results</h2>
 
-  <h3>Lettura critica dell'output numerico</h3>
+  <h3>Critical reading of the numerical output</h3>
   <p>
-    Riferiamoci ai valori calcolati per <em>Iris setosa</em>, lunghezza petali ($n = 50$):
+    Let's refer to the values calculated for <em>Iris setosa</em>, petal length ($n = 50$):
   </p>
   <ul class="prop-list">
     <li>
-      <strong>SD = 0.174 cm.</strong> I singoli petali si discostano in media di 0.17 cm dalla media. Circa il 68% dei petali di <em>I. setosa</em> ha una lunghezza tra 1.29 e 1.64 cm. Questo è un dato sulla <em>biologia della specie</em>.
+      <strong>SD = 0.174 cm.</strong> Individual petals deviate on average by 0.17 cm from the mean. About 68% of <em>I. setosa</em> petals have a length between 1.29 and 1.64 cm. This is data on the <em>biology of the species</em>.
     </li>
     <li>
-      <strong>SE = 0.025 cm.</strong> La nostra media campionaria (1.462 cm) è stimata con un'incertezza di circa ±0.025 cm. Questo ci dice quanto è affidabile la stima, indipendentemente da quanto varino gli individui.
+      <strong>SE = 0.025 cm.</strong> Our sample mean (1.462 cm) is estimated with an uncertainty of about ±0.025 cm. This tells us how reliable the estimate is, regardless of how much the individuals vary.
     </li>
     <li>
-      <strong>IC 95% = [1.413 – 1.511] cm.</strong> Possiamo affermare con il 95% di confidenza che la vera media della popolazione di <em>I. setosa</em> cade in questo intervallo.
+      <strong>95% CI = [1.413 – 1.511] cm.</strong> We can state with 95% confidence that the true mean of the <em>I. setosa</em> population falls within this interval.
     </li>
   </ul>
 
   <p>
-    Il rapporto $SD/SE = 0.174/0.025 \approx 7 = \sqrt{50}$ non è casuale: è sempre esattamente $\sqrt{n}$. Se avessimo 200 osservazioni invece di 50, la SD rimarrebbe intorno a 0.174 cm (la variabilità biologica non cambia), ma la SE scenderebbe a $0.174/\sqrt{200} \approx 0.012$ cm. Una SD piccola riflette individui biologicamente simili; una SE piccola riflette tanti dati raccolti.
+    The ratio $SD/SE = 0.174/0.025 \approx 7 = \sqrt{50}$ is not random: it is always exactly $\sqrt{n}$. If we had 200 observations instead of 50, the SD would remain around 0.174 cm (biological variability doesn't change), but the SE would drop to $0.174/\sqrt{200} \approx 0.012$ cm. A small SD reflects biologically similar individuals; a small SE reflects a lot of collected data.
   </p>
 
-  <h3>Interpretazione dei grafici</h3>
+  <h3>Interpreting the graphs</h3>
   <p>
-    Il <strong>Grafico 1</strong> mostra la distribuzione dei valori individuali con la SD sovrapposta. Le linee tratteggiate abbracciano la grande maggioranza dei petali: questa è la variabilità biologica reale della specie.
+    <strong>Graph 1</strong> shows the distribution of individual values with the SD overlaid. The dashed lines embrace the vast majority of the petals: this is the real biological variability of the species.
   </p>
   <p>
-    Il <strong>Grafico 2</strong> mette a confronto SD e SE sulla stessa scala. La differenza visiva è immediata e spesso sorprendente per chi non ci ha mai riflettuto: entrambe si misurano in centimetri, eppure lo SE appare quasi un punto. Questo non significa che i dati siano «più precisi» di quanto mostrino: significa che con $n=50$ la stima della media è molto stabile.
+    <strong>Graph 2</strong> compares SD and SE on the same scale. The visual difference is immediate and often surprising for those who have never thought about it: both are measured in centimeters, yet the SE looks almost like a dot. This does not mean the data is "more precise" than it shows: it means that with $n=50$, the mean estimate is very stable.
   </p>
   <p>
-    Il <strong>Grafico 3</strong> è quello più istruttivo sul piano concettuale. Simulando 5000 estrazioni casuali di 50 petali, la distribuzione delle medie ottenute è molto più stretta della distribuzione dei valori individuali. La sua SD è uguale allo SE teorico. Lo SE è letteralmente la «deviazione standard delle possibili medie campionarie» — ed è per questo che ci dice quanto è precisa la nostra stima.
+    <strong>Graph 3</strong> is the most instructive on a conceptual level. By simulating 5000 random extractions of 50 petals, the distribution of the obtained means is much narrower than the distribution of individual values. Its SD equals the theoretical SE. The SE is literally the "standard deviation of possible sample means" — and that is why it tells us how precise our estimate is.
   </p>
   <p>
-    Il <strong>Grafico 4</strong> mostra l'uso corretto dello SE in un contesto comparativo. Le tre specie di <em>Iris</em> differiscono notevolmente nella lunghezza dei petali, e le barre ±SE rendono evidente questa differenza in modo statisticamente onesto.
+    <strong>Graph 4</strong> shows the correct use of the SE in a comparative context. The three species of <em>Iris</em> differ significantly in petal length, and the ±SE bars make this difference evident in a statistically honest way.
   </p>
 </section>
 
 
-<!-- ============================================================
-     7. USO INFERENZIALE
-     ============================================================ -->
 <section id="inferenza">
-  <h2>L'Errore Standard nelle Pratiche Inferenziali</h2>
+  <h2>The Standard Error in Inferential Practices</h2>
 
-  <h3>Intervalli di Confidenza</h3>
+  <h3>Confidence Intervals</h3>
   <p>
-    L'applicazione più immediata dello SE è la costruzione dell'<strong>intervallo di confidenza</strong> (IC) della media. Per campioni di dimensione $n \geq 30$ è spesso accettabile l'approssimazione normale:
+    The most immediate application of the SE is building the <strong>confidence interval</strong> (CI) of the mean. For samples of size $n \geq 30$, the normal approximation is often acceptable:
   </p>
   <div class="formula-box">
-    <span class="formula-label">Intervallo di Confidenza al 95% — approssimazione normale</span>
-    $$IC_{95\%} \approx \bar{x} \pm 1.96 \cdot SE$$
+    <span class="formula-label">95% Confidence Interval — normal approximation</span>
+    $$CI_{95\%} \approx \bar{x} \pm 1.96 \cdot SE$$
   </div>
   <p>
-    Per campioni più piccoli, il coefficiente 1.96 deve essere sostituito con il quantile della distribuzione <em>t</em> di Student con $n-1$ gradi di libertà (<code>qt(0.975, df = n-1)</code> in R). Con $n=50$ si ottiene $t \approx 2.009$, molto prossimo a 1.96. Con $n=10$ invece $t \approx 2.262$: l'intervallo risulta più ampio perché l'incertezza con pochi dati è maggiore. La distribuzione <em>t</em> di Student sarà oggetto di una lezione dedicata.
+    For smaller samples, the coefficient 1.96 must be replaced with the quantile of Student's <em>t</em> distribution with $n-1$ degrees of freedom (<code>qt(0.975, df = n-1)</code> in R). With $n=50$, you get $t \approx 2.009$, very close to 1.96. With $n=10$, however, $t \approx 2.262$: the interval becomes wider because the uncertainty with little data is greater. Student's <em>t</em> distribution will be the subject of a dedicated lesson.
   </p>
 
-  <h3>Confronto tra Trattamenti, Specie o Siti</h3>
+  <h3>Comparing Treatments, Species, or Sites</h3>
   <p>
-    In agronomia e in entomologia, molte domande di ricerca si riducono a confrontare le medie di due o più gruppi: la resa media in parcelle trattate con pesticida A vs pesticida B; la densità media di afidi in più varietà di coltura; la lunghezza media delle larve a diverse temperature di allevamento. In tutti questi casi la SE è l'indice centrale.
+    In agronomy and entomology, many research questions boil down to comparing the means of two or more groups: the average yield in plots treated with pesticide A vs pesticide B; the average density of aphids in different crop varieties; the average length of larvae at different rearing temperatures. In all these cases, the SE is the central index.
   </p>
   <p>
-    Una regola empirica utile (ma non sostitutiva di un test formale): se gli intervalli di confidenza al 95% di due gruppi <strong>non si sovrappongono</strong>, la differenza è quasi certamente significativa con $p < 0.05$. Se si sovrappongono, la significatività deve essere valutata con un test statistico appropriato.
+    A useful rule of thumb (but not a substitute for a formal test): if the 95% confidence intervals of two groups <strong>do not overlap</strong>, the difference is almost certainly significant with $p < 0.05$. If they overlap, significance must be assessed with an appropriate statistical test.
   </p>
   <p>
-    Il flusso operativo tipico in una valutazione statistica sperimentale è:
+    The typical workflow in an experimental statistical evaluation is:
   </p>
   <ol class="list-plain">
-    <li>Calcolare media e SE (o IC 95%) per ciascun gruppo o trattamento.</li>
-    <li>Visualizzare con un grafico a barre o a punti con barre d'errore ±SE.</li>
-    <li>Applicare il test statistico opportuno: <em>t</em>-test per due gruppi, ANOVA per tre o più gruppi.</li>
-    <li>Riportare il valore del test, i gradi di libertà, il valore $p$ e l'effect size.</li>
+    <li>Calculate mean and SE (or 95% CI) for each group or treatment.</li>
+    <li>Visualize with a bar or dot plot featuring ±SE error bars.</li>
+    <li>Apply the appropriate statistical test: <em>t</em>-test for two groups, ANOVA for three or more groups.</li>
+    <li>Report the test value, degrees of freedom, $p$-value, and effect size.</li>
   </ol>
 
   <div class="callout">
-    <span class="callout-title">Approfondimento futuro</span>
-    <p>Il test <em>t</em> e l'ANOVA, il calcolo della potenza statistica e la dimensione campionaria minima saranno trattati in lezioni successive.</p>
+    <span class="callout-title">Future deep dive</span>
+    <p>The <em>t</em>-test and ANOVA, calculating statistical power, and minimum sample size will be covered in upcoming lessons.</p>
   </div>
 
-  <h3>SD o SE nelle Barre d'Errore: la Scelta Pratica</h3>
+  <h3>SD or SE in Error Bars: The Practical Choice</h3>
   <p>
-    Questa è la domanda più frequente, e la risposta è semplice se si ha chiaro l'obiettivo della figura:
+    This is the most frequent question, and the answer is simple if you are clear about the figure's goal:
   </p>
   <ul class="prop-list">
     <li>
-      <strong>Barre = SD</strong> quando lo scopo è mostrare la variabilità biologica del campione o definire limiti di riferimento per valori individuali. Esempio: descrivere il range di peso delle larve in una colonia.
+      <strong>Bars = SD</strong> when the goal is to show the biological variability of the sample or to define reference limits for individual values. Example: describing the weight range of larvae in a colony.
     </li>
     <li>
-      <strong>Barre = SE o IC 95%</strong> quando lo scopo è confrontare medie tra gruppi diversi. Le barre di errore in questi grafici devono esprimere l'incertezza sulla stima della media, non la dispersione degli individui.
+      <strong>Bars = SE or 95% CI</strong> when the goal is to compare means between different groups. The error bars in these graphs must express the uncertainty in estimating the mean, not the dispersion of individuals.
     </li>
     <li>
-      <strong>Sempre specificare in legenda</strong> quale dei due indici è rappresentato. Scrivere semplicemente «le barre rappresentano l'errore» è insufficiente.
+      <strong>Always specify in the legend</strong> which of the two indices is shown. Simply writing "bars represent error" is insufficient.
     </li>
   </ul>
 
 
 
   <div class="future-note">
-    <span class="fn-title">Argomenti per successivi articoli</span>
-    <p>Distribuzione campionaria delle medie e Teorema Centrale del Limite · Correzione di Bessel e stimatori non distorti · Test <em>t</em> di Student per uno e due campioni indipendenti · ANOVA a una via · Confronti multipli (post-hoc) · Effect size (Cohen's <em>d</em>, η²) · Potenza statistica e calcolo della dimensione campionaria minima.</p>
+    <span class="fn-title">Topics for future articles</span>
+    <p>Sampling distribution of means and Central Limit Theorem · Bessel's correction and unbiased estimators · Student's <em>t</em>-test for one and two independent samples · One-way ANOVA · Multiple comparisons (post-hoc) · Effect size (Cohen's <em>d</em>, η²) · Statistical power and minimum sample size calculation.</p>
   </div>
 </section>
 
 
-<!-- ============================================================
-     8. CONCLUSIONI
-     ============================================================ -->
 <section id="conclusioni">
-  <h2>Conclusioni</h2>
+  <h2>Conclusions</h2>
   <p>
-    SD e SE sono entrambi indici fondamentali nella pratica statistica delle scienze della vita, ma non sono intercambiabili: descrivono due aspetti completamente diversi della realtà sperimentale.
+    SD and SE are both fundamental indices in the statistical practice of life sciences, but they are not interchangeable: they describe two completely different aspects of experimental reality.
   </p>
   <p>
-    La <strong>Deviazione Standard</strong> è uno strumento descrittivo: riflette la variabilità biologica degli individui nel campione. Aumentare il campione non la riduce; converge verso una proprietà della popolazione.
+    The <strong>Standard Deviation</strong> is a descriptive tool: it reflects the biological variability of the individuals in the sample. Increasing the sample size does not reduce it; it converges towards a population property.
   </p>
   <p>
-    L'<strong>Errore Standard</strong> è uno strumento inferenziale: quantifica l'incertezza della nostra stima della media. Aumentare il campione lo riduce proporzionalmente a $1/\sqrt{n}$; non ci dice nulla sulla variabilità biologica dei singoli individui.
+    The <strong>Standard Error</strong> is an inferential tool: it quantifies the uncertainty of our sample mean estimate. Increasing the sample size reduces it proportionally to $1/\sqrt{n}$; it tells us nothing about the biological variability of single individuals.
   </p>
   <p>
-    Sul dataset <em>Iris setosa</em> abbiamo visto concretamente: con $n = 50$, $SD = 0.174$ cm mentre $SE = 0.025$ cm. Il rapporto è $\sqrt{50} \approx 7$: strutturale, non accidentale. Con 200 osservazioni, la SD resterebbe ~0.174 cm mentre la SE scenderebbe a ~0.012 cm.
+    On the <em>Iris setosa</em> dataset, we have seen this concretely: with $n = 50$, $SD = 0.174$ cm while $SE = 0.025$ cm. The ratio is $\sqrt{50} \approx 7$: structural, not accidental. With 200 observations, the SD would remain ~0.174 cm while the SE would drop to ~0.012 cm.
   </p>
 
   <table class="comp-table">
     <thead>
       <tr>
-        <th>Quando ho questo obiettivo…</th>
-        <th>Uso questo indice</th>
+        <th>When I have this goal…</th>
+        <th>I use this index</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Descrivere quanto variano i singoli individui del campione</td>
+        <td>Describe how much individual subjects vary in the sample</td>
         <td><strong>SD</strong></td>
       </tr>
       <tr>
-        <td>Capire se un valore individuale è «normale» o anomalo</td>
+        <td>Understand if an individual value is "normal" or anomalous</td>
         <td><strong>SD</strong></td>
       </tr>
       <tr>
-        <td>Stimare l'incertezza della media campionaria</td>
+        <td>Estimate the uncertainty of the sample mean</td>
         <td><strong>SE</strong></td>
       </tr>
       <tr>
-        <td>Costruire un intervallo di confidenza per la media</td>
+        <td>Build a confidence interval for the mean</td>
         <td><strong>SE</strong></td>
       </tr>
       <tr>
-        <td>Confrontare le medie di trattamenti / specie / siti</td>
-        <td><strong>SE</strong> (o IC 95%)</td>
+        <td>Compare the means of treatments / species / sites</td>
+        <td><strong>SE</strong> (or 95% CI)</td>
       </tr>
       <tr>
-        <td>Barre d'errore in un grafico comparativo</td>
-        <td><strong>SE</strong> — specificarlo in legenda</td>
+        <td>Error bars in a comparative graph</td>
+        <td><strong>SE</strong> — specify in the legend</td>
       </tr>
     </tbody>
   </table>
 
   <p style="margin-top: 1.5rem;">
-    Il messaggio finale è semplice: la prossima volta che vedete (o producete) un grafico con barre d'errore, chiedete — o dichiarate — sempre se quelle barre sono SD o SE. Non è burocrazia: è onestà scientifica.
+    The final message is simple: the next time you see (or produce) a graph with error bars, always ask — or state — if those bars are SD or SE. It's not bureaucracy: it's scientific honesty.
   </p>
 </section>
 
-</div><!-- end .container -->
-</main>
+</div></main>
 
-<!-- ============================================================
-     FOOTER
-     ============================================================ -->
 <footer>
   <div class="inner">
-    <p><strong style="color:rgba(255,255,255,0.88)">Statistica per le Scienze della Vita</strong> — Materiali didattici open access</p>
+    <p><strong style="color:rgba(255,255,255,0.88)">Statistics for Life Sciences</strong> — Open access teaching materials</p>
     <p style="margin-top:0.5rem">
-      Dataset: <code>iris</code> (R.A. Fisher, 1936) — disponibile in R con <code>data(iris)</code>
+      Dataset: <code>iris</code> (R.A. Fisher, 1936) — available in R with <code>data(iris)</code>
     </p>
     <p style="margin-top:0.5rem">
-      Script R: <a href="R/01_calcolo_sd_se.R">01_calcolo_sd_se.R</a> &nbsp;·&nbsp;
+      R Scripts: <a href="R/01_calcolo_sd_se.R">01_calcolo_sd_se.R</a> &nbsp;·&nbsp;
       <a href="R/02_grafici_sd_se.R">02_grafici_sd_se.R</a>
     </p>
     <p style="margin-top:0.8rem; color:rgba(255,255,255,0.38); font-size:0.8rem">
-      Rilasciato sotto licenza <a href="https://creativecommons.org/licenses/by/4.0/" style="color:#74c69d">CC BY 4.0</a>.
-      Per citare questa risorsa consultare il file <code>CITATION.cff</code> nel repository.
+      Released under a <a href="https://creativecommons.org/licenses/by/4.0/" style="color:#74c69d">CC BY 4.0</a> license.
+      To cite this resource, please refer to the <code>CITATION.cff</code> file in the repository.
     </p>
   </div>
 </footer>
