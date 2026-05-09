@@ -155,7 +155,7 @@ footer code{background:rgba(255,255,255,.1);color:#74c69d;padding:.1em .4em;bord
 
 <section id="intro">
   <h2>Introduction</h2>
-  <p>In the scientific literature on biology, entomology and agronomy, two indices are often confused or used as synonyms: the <strong>Standard Deviation</strong> (SD) and the <strong>Standard Error of the Mean</strong> (SE). Both are expressed in the same units as the data, and both frequently appear in the same places — error bars in figures, mean ± value in the text. Yet they answer fundamentally different questions.</p>
+  <p>In the scientific literature, two indices are often confused or used as synonyms: the <strong>Standard Deviation</strong> (SD) and the <strong>Standard Error of the Mean</strong> (SE). Both are expressed in the same units as the data, and both frequently appear in the same places — error bars in figures, mean ± value in the text. Yet they answer fundamentally different questions.</p>
   <p><strong>SD</strong> answers: <em>"How much do individual observations vary in my sample?"</em><br>
   <strong>SE</strong> answers: <em>"How precisely does my sample mean estimate the true population mean?"</em></p>
   <p>Understanding this difference is not a minor technical detail. It is essential for interpreting your data correctly, choosing the most honest figure, and applying statistical tests in the right way. In this lesson we will cover the theory, the formulas, and then calculate both indices together in R using real biological data.</p>
@@ -189,8 +189,13 @@ footer code{background:rgba(255,255,255,.1);color:#74c69d;padding:.1em .4em;bord
     <li><strong>Sensitive to outliers</strong>: a single extreme value can inflate the SD considerably.</li>
   </ul>
   <h3>Practical use</h3>
-  <p>The SD is a <strong>descriptive</strong> tool. Use it when you want to characterise the biological variability of a trait, describe the distribution of a character in a population, or define biological reference ranges. In figures, SD error bars show <em>where individuals fall</em>, not the precision of the mean estimate.</p>
+  <p>The SD is a <strong>descriptive</strong> tool. It should be used when you want to characterise the biological variability of a trait, describe the distribution of a character in a population, or define biological reference ranges. In figures, SD error bars show <em>where individuals fall</em>, not the precision of the mean estimate.</p>
+<ul class="prop-list">
+  <li><strong>Short bars</strong>: Indicate that the values of your sample are all very close to the mean value. There is low variability and the data is highly "concentrated".</li>
+ <li><strong>Long bars</strong>: Indicate that the sample values are very spread out and far from the mean. There is high variability in the observed phenomenon.</li> 
+</ul>
 </section>
+  
 
 <section id="se">
   <h2>Standard Error of the Mean (SE)</h2>
