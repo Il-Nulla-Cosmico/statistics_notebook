@@ -217,6 +217,15 @@ footer code{background:rgba(255,255,255,.1);color:#74c69d;padding:.1em .4em;bord
     <li>Foundation for <strong>confidence intervals</strong>: $CI_{95\%} \approx \bar{x} \pm 1.96 \cdot SE$ (for large samples).</li>
     <li>For small samples, use Student's $t$ quantile instead: $\bar{x} \pm t_{\alpha/2,\, n-1} \cdot SE$.</li>
   </ul>
+  <figure class="fig" style="max-width:560px; margin: 1.8rem 0;">
+  <img src="img/sampling_distribution.gif"
+       alt="How the sampling distribution of the mean narrows as sample size increases">
+  <figcaption class="fig-caption">
+    <strong>Animation.</strong> As sample size $n$ increases, the sampling
+    distribution of the mean becomes narrower. Its spread — the Standard Error
+    — decreases proportionally to $1/\sqrt{n}$.
+  </figcaption>
+</figure>
   <h3>Practical use</h3>
   <p>The SE is an <strong>inferential</strong> tool. Use it when you want to make statements about the population mean, build confidence intervals, or compare the means of different groups (treatments, species, sites, years). SE error bars in figures show <em>the uncertainty around the mean estimate</em> — which is the relevant information for group comparisons.</p>
 </section>
