@@ -441,7 +441,9 @@ message("Plots saved in img/")</code></pre>
     <li><strong>SE = 0.025 cm.</strong> Our sample mean (1.462 cm) is estimated with an uncertainty of about ±0.025 cm. This tells us how reliable the estimate is, regardless of how much individuals vary.</li>
     <li><strong>95% CI = [1.413 – 1.511] cm.</strong> We can say with 95% confidence that the true population mean of <em>I. setosa</em> falls within this interval.</li>
   </ul>
-  <p>The ratio $SD/SE = 0.174/0.025 \approx 7 = \sqrt{50}$ is not a coincidence — it is always exactly $\sqrt{n}$. With 200 observations instead of 50, the SD would stay around 0.174 cm (biological variability does not change), but the SE would drop to $0.174/\sqrt{200} \approx 0.012$ cm. A small SD reflects biologically similar individuals; a small SE reflects a large dataset.</p>
+  <p>The ratio $SD/SE = 0.174/0.025 \approx 7 = \sqrt{50}$ is not a coincidence — it is always exactly $\sqrt{n}$. With 200 observations instead of 50, the SD would stay around 0.174 cm (biological variability does not change), but the SE would drop to $0.174/\sqrt{200} \approx 0.012$ cm. A small SD reflects biologically similar individuals; a small SE reflects 
+a large dataset. <strong>Increasing n reduces the SE but does not change 
+the SD — the biological variability of individuals stays the same.</strong>.</p>
   <h3>Reading the plots</h3>
   <p><strong>Plot 1</strong> shows the distribution of individual values with SD overlaid. The dashed lines cover the vast majority of petals — this is the real biological variability of the species.</p>
   <p><strong>Plot 2</strong> puts SD and SE on the same scale. The visual difference is immediate and often surprising: both are in centimetres, yet the SE looks almost like a dot. This does not mean the data are "more precise" — it means that with $n=50$ the mean estimate is very stable.</p>
