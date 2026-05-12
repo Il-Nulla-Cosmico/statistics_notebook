@@ -226,6 +226,15 @@ footer code{background:rgba(255,255,255,.1);color:#74c69d;padding:.1em .4em;bord
     — decreases proportionally to $1/\sqrt{n}$.
   </figcaption>
 </figure>
+  <div class="callout warn">
+  <span class="callout-title">What SE is NOT</span>
+  <p>The Standard Error is not a measurement error, not instrument noise, 
+  and not a sign of poor data quality. It does not measure how much 
+  individuals differ from each other. It measures one specific thing: 
+  <strong>how much the sample mean would fluctuate if we repeated 
+  the sampling many times.</strong> A large SE means we need more data 
+  to pin down the mean reliably — nothing more, nothing less.</p>
+</div>
   <h3>Practical use</h3>
   <p>The SE is an <strong>inferential</strong> tool. Use it when you want to make statements about the population mean, build confidence intervals, or compare the means of different groups (treatments, species, sites, years). SE error bars in figures show <em>the uncertainty around the mean estimate</em> — which is the relevant information for group comparisons.</p>
 </section>
@@ -436,7 +445,8 @@ message("Plots saved in img/")</code></pre>
   <h3>Reading the plots</h3>
   <p><strong>Plot 1</strong> shows the distribution of individual values with SD overlaid. The dashed lines cover the vast majority of petals — this is the real biological variability of the species.</p>
   <p><strong>Plot 2</strong> puts SD and SE on the same scale. The visual difference is immediate and often surprising: both are in centimetres, yet the SE looks almost like a dot. This does not mean the data are "more precise" — it means that with $n=50$ the mean estimate is very stable.</p>
-  <p><strong>Plot 3</strong> is the most instructive. By simulating 5 000 random draws of 50 petals, the distribution of sample means is much narrower than the distribution of individual values. Its SD equals the theoretical SE. The SE is literally the "standard deviation of all possible sample means."</p>
+  <p><strong>Plot 3.</strong> Distribution of 5 000 bootstrap sample means. Its SD equals the theoretical SE — an empirical proof of what the SE is: the uncertainty of the sample mean. Note: this is the sampling distribution of the <em>mean</em>, not the distribution of the raw data. The Central Limit 
+Theorem guarantees this distribution tends towards normality regardless of the shape of the original data — a concept we will explore in a dedicated lesson.</p>
   <p><strong>Plot 4</strong> shows the correct use of SE in a comparative context. The ±SE bars make differences between species clear in a statistically honest way.</p>
 </section>
 
