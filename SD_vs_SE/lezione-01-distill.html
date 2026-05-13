@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Standard Deviation vs Standard Error — Statistics for Life Sciences, Notebook 01</title>
+<meta name="description" content="A narrative lesson on Standard Deviation and Standard Error for biologists, entomologists and agronomists. Examples in R using the Iris dataset.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS — Distill style + viola/fucsia palette
+   ============================================================ */
+:root {
+  --violet:       #5e4b8b;
+  --violet-mid:   #9b72cf;
+  --violet-light: #c084fc;
+  --violet-pale:  #f3eeff;
+  --fuchsia:      #e879a0;
+  --fuchsia-pale: #fce7f0;
+  --rose-pale:    #f0abcb;
+  --text:         #1a1a2e;
+  --text-muted:   #6b7280;
+  --bg:           #ffffff;
+  --bg-off:       #fafaf9;
+  --border:       #e5e7eb;
+  --r-bg:         #f5f5f2;
+  --r-header:     #ebebе7;
+  --r-output:     #1e1e2e;
+  --serif:        'Lora', Georgia, serif;
+  --display:      'Playfair Display', Georgia, serif;
+  --mono:         'JetBrains Mono', monospace;
+  /* Layout */
+  --col-text:     680px;
+  --col-wide:     960px;
+  --col-full:     1100px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html  { scroll-behavior: smooth; }
+body  {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.85;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* ============================================================
+   DISTILL LAYOUT — narrow text, wide figures
+   ============================================================ */
+.l-body {
+  max-width: var(--col-text);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+}
+.l-wide {
+  max-width: var(--col-wide);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+}
+.l-full {
+  max-width: var(--col-full);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+}
+
+/* ============================================================
+   HEADER — minimal Distill style
+   ============================================================ */
+.site-header {
+  border-top: 4px solid var(--violet);
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  max-width: var(--col-text);
+  margin: 0 auto;
+}
+.site-header .series-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--violet);
+  display: block;
+  margin-bottom: 1.4rem;
+}
+.site-header h1 {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 0.8rem;
+}
+.site-header h1 em {
+  color: var(--violet);
+  font-style: italic;
+}
+.site-header .subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 1.8rem;
+  line-height: 1.6;
+}
+.site-header .meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.site-header .divider {
+  width: 48px;
+  height: 3px;
+  background: var(--violet-light);
+  margin: 2rem auto 0;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   STICKY NAV
+   ============================================================ */
+nav.toc {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+nav.toc .toc-inner {
+  max-width: var(--col-wide);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+nav.toc .toc-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-right: 1rem;
+}
+nav.toc a {
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.25em 0.6em;
+  border-radius: 3px;
+  transition: background 0.15s, color 0.15s;
+}
+nav.toc a:hover { background: var(--violet-pale); color: var(--violet); }
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+main { padding: 4rem 0 5rem; }
+
+/* ============================================================
+   MOVEMENT SECTIONS
+   ============================================================ */
+.movement {
+  margin-bottom: 5rem;
+}
+.movement[id] { scroll-margin-top: 60px; }
+
+.movement-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--violet-mid);
+  margin-bottom: 0.6rem;
+}
+h2 {
+  font-family: var(--display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 1.8rem;
+}
+h3 {
+  font-family: var(--display);
+  font-size: 1.18rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 2.2rem 0 0.7rem;
+}
+p { margin-bottom: 1.1rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+a { color: var(--violet); text-underline-offset: 2px; }
+a:hover { color: var(--fuchsia); }
+code {
+  font-family: var(--mono);
+  font-size: 0.83em;
+  background: #f0eef8;
+  color: #4a3870;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+}
+
+/* ============================================================
+   DROPCAP — first letter of each movement
+   ============================================================ */
+.dropcap::first-letter {
+  font-family: var(--display);
+  font-size: 3.8rem;
+  font-weight: 700;
+  float: left;
+  line-height: 0.78;
+  margin-right: 0.1em;
+  margin-top: 0.08em;
+  color: var(--violet);
+}
+
+/* ============================================================
+   FORMULA BOX
+   ============================================================ */
+.formula-box {
+  background: var(--violet-pale);
+  border-left: 3px solid var(--violet);
+  border-radius: 0 8px 8px 0;
+  padding: 1.4rem 1.8rem;
+  margin: 1.8rem 0;
+  overflow-x: auto;
+}
+.formula-box .formula-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--violet);
+  display: block;
+  margin-bottom: 0.8rem;
+}
+.formula-box .formula-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: none;
+}
+
+/* ============================================================
+   CALLOUT
+   ============================================================ */
+.callout {
+  border-left: 3px solid var(--violet);
+  background: var(--violet-pale);
+  padding: 0.9rem 1.3rem;
+  border-radius: 0 6px 6px 0;
+  margin: 1.6rem 0;
+}
+.callout.warn  { border-color: var(--fuchsia); background: var(--fuchsia-pale); }
+.callout.info  { border-color: #1565c0; background: #e3f0fc; }
+.callout-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--violet);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.callout.warn .callout-title { color: var(--fuchsia); }
+.callout.info .callout-title { color: #1565c0; }
+.callout p { margin: 0; font-size: 0.93rem; max-width: none; }
+
+/* ============================================================
+   PROP LIST
+   ============================================================ */
+.prop-list { list-style: none; padding: 0; margin: 0.6rem 0 1.2rem; }
+.prop-list li {
+  padding: 0.45rem 0 0.45rem 1.6rem;
+  position: relative;
+  border-bottom: 1px solid #f0eef8;
+  font-size: 0.97rem;
+}
+.prop-list li:last-child { border-bottom: none; }
+.prop-list li::before { content: '▸'; position: absolute; left: 0; color: var(--violet); }
+
+/* ============================================================
+   R CODE BOX — grigio chiaro, bordo viola
+   ============================================================ */
+.r-box {
+  background: var(--r-bg);
+  border: 1px solid #ddd;
+  border-left: 4px solid var(--violet);
+  border-radius: 0 8px 8px 0;
+  margin: 2.5rem 0;
+  overflow: hidden;
+}
+.r-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.2rem;
+  background: #ebebе7;
+  border-bottom: 1px solid #ddd;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.r-box-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: #2c2c3e;
+  font-weight: 500;
+}
+.r-tag {
+  background: var(--violet);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 0.2em 0.6em;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.r-box-link {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--violet);
+  text-decoration: none;
+  padding: 0.22em 0.7em;
+  border: 1px solid var(--violet);
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.r-box-link:hover { background: var(--violet); color: #fff; }
+.r-box pre { margin: 0; padding: 1.1rem 1.4rem; background: transparent !important; overflow-x: auto; }
+.r-box pre code, .r-box pre code.hljs {
+  background: transparent !important;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+.r-output {
+  background: var(--r-output);
+  color: #c9b8ff;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  padding: 0.9rem 1.4rem;
+  border-top: 1px solid #ddd;
+  overflow-x: auto;
+  line-height: 1.6;
+  white-space: pre;
+}
+.r-output-label {
+  display: block;
+  font-size: 0.62rem;
+  color: #9b72cf;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   FIGURES — wide layout, escono dal margine del testo
+   ============================================================ */
+.fig-wide {
+  margin: 2.5rem auto;
+  max-width: var(--col-wide);
+  padding: 0 1.5rem;
+}
+.fig-narrow {
+  margin: 2rem auto;
+  max-width: var(--col-text);
+  padding: 0 1.5rem;
+}
+.fig-inner {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.fig-inner img { width: 100%; height: auto; display: block; }
+.fig-placeholder {
+  background: #f5f0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: #9b72cf;
+  text-align: center;
+  padding: 1.5rem;
+  line-height: 1.6;
+}
+figcaption {
+  padding: 0.7rem 1.1rem;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  line-height: 1.55;
+  font-style: italic;
+}
+figcaption strong { font-style: normal; color: var(--text); }
+
+/* ============================================================
+   COMPARISON TABLE
+   ============================================================ */
+.comp-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.92rem; }
+.comp-table th {
+  background: var(--violet);
+  color: #fff;
+  font-family: var(--serif);
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  text-align: left;
+}
+.comp-table th:first-child { border-radius: 4px 0 0 0; }
+.comp-table th:last-child  { border-radius: 0 4px 0 0; }
+.comp-table td { padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.comp-table tr:nth-child(even) td { background: var(--violet-pale); }
+.comp-table tr:hover td { background: #ede8fa; transition: background 0.1s; }
+
+/* ============================================================
+   PRACTICAL RULE BOX — M5
+   ============================================================ */
+.rule-box {
+  background: linear-gradient(135deg, var(--violet-pale) 0%, var(--fuchsia-pale) 100%);
+  border: 1.5px solid var(--violet-light);
+  border-radius: 10px;
+  padding: 2rem 2.2rem;
+  margin: 2rem 0;
+}
+.rule-box h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  color: var(--violet);
+  margin: 0 0 1rem;
+}
+
+/* ============================================================
+   FUTURE NOTE
+   ============================================================ */
+.future-note {
+  background: var(--bg-off);
+  border: 1px dashed #c4b5e8;
+  border-radius: 6px;
+  padding: 0.9rem 1.2rem;
+  margin: 1.8rem 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+.future-note .fn-title {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #b0a0d0;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+/* ============================================================
+   MOVEMENT SEPARATOR
+   ============================================================ */
+.movement-sep {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 4rem auto;
+  max-width: var(--col-text);
+  padding: 0 1.5rem;
+}
+.movement-sep::before,
+.movement-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--violet-light), transparent);
+}
+.movement-sep span {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--violet-mid);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background: #1a1a2e;
+  color: rgba(255,255,255,0.55);
+  padding: 2.5rem 1.5rem;
+  margin-top: 4rem;
+}
+footer .inner {
+  max-width: var(--col-wide);
+  margin: 0 auto;
+  font-size: 0.83rem;
+  line-height: 1.7;
+}
+footer a { color: var(--violet-light); }
+footer code { background: rgba(255,255,255,0.1); color: var(--violet-light); padding: 0.1em 0.4em; border-radius: 3px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  nav.toc a { font-size: 0.7rem; padding: 0.2em 0.4em; }
+  .comp-table { font-size: 0.8rem; }
+  .comp-table td, .comp-table th { padding: 0.4rem 0.6rem; }
+  .r-box pre code { font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="site-header">
+  <span class="series-label">Statistics for Life Sciences &mdash; Notebook 01</span>
+  <h1>Standard Deviation <em>vs</em> Standard Error</h1>
+  <p class="subtitle">Theory and Practice &middot; Examples in R using the Iris Dataset</p>
+  <div class="meta">
+    <span>📅 <span id="anno"></span></span>
+    <span>🔬 Iris setosa &mdash; Petal Length</span>
+    <span>💻 R base + ggplot2</span>
+    <span>⏱ ~15 min</span>
+  </div>
+  <div class="divider"></div>
+</header>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="toc">
+  <div class="toc-inner">
+    <span class="toc-label">Contents</span>
+    <a href="#problem">The Problem</a>
+    <a href="#two-questions">Two Questions</a>
+    <a href="#real-data">Real Data</a>
+    <a href="#trap">The Trap</a>
+    <a href="#rule">The Rule</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<main>
+
+<!-- ============================================================
+     M1 — THE PROBLEM
+     ============================================================ -->
+<div class="movement" id="problem">
+  <div class="l-body">
+    <span class="movement-label">Movement 01</span>
+    <h2>The Problem</h2>
+
+    <p class="dropcap">You are reading a paper. Figure 2 shows three bars, one for each treatment. Each bar has a small vertical line on top — an error bar. You look at the legend. Sometimes it says <em>"± SE"</em>. Sometimes <em>"± SD"</em>. Sometimes it says nothing at all.</p>
+
+    <p>Does it matter? Enormously.</p>
+
+    <p>An error bar can represent two completely different things. It can describe how variable the individual measurements were in your sample. Or it can tell you how precisely the mean was estimated. Same bar, same units, same figure — but a completely different meaning.</p>
+
+    <p>This confusion is not a rare exception. A well-known survey of papers published in leading biology journals found that a substantial proportion of figures either used the wrong index for their purpose or failed to specify which one was shown. The result is that readers cannot always know what they are actually looking at.</p>
+
+    <p>By the end of this notebook you will know exactly what each index measures, when to use one and when to use the other, and why the choice matters every time you build or read a figure.</p>
+  </div>
+</div>
+
+<div class="movement-sep"><span>Two indices</span></div>
+
+<!-- ============================================================
+     M2 — TWO QUESTIONS
+     ============================================================ -->
+<div class="movement" id="two-questions">
+  <div class="l-body">
+    <span class="movement-label">Movement 02</span>
+    <h2>Two Indices, Two Questions</h2>
+
+    <p class="dropcap">Imagine you have just measured the petal length of 50 <em>Iris setosa</em> specimens. Some are 1.2 cm, some are 1.7 cm. Most cluster around 1.5 cm. You could ask two very different questions about these numbers.</p>
+
+    <p>The first question is about the <strong>individuals</strong>: how spread out are they? How much does one petal differ from another? This is a question about biological variability — about the nature of the species itself.</p>
+
+    <p>The second question is about your <strong>estimate</strong>: how close is your sample mean of 1.46 cm to the true mean of the entire <em>I. setosa</em> population? If you went back and measured another 50 specimens, would you get 1.46 again, or 1.38, or 1.51? This is a question about the precision of your measurement.</p>
+
+    <p>These two questions have two different answers — and two different indices.</p>
+
+    <h3>Standard Deviation — the answer to the first question</h3>
+    <p>The Standard Deviation (SD) measures the typical distance of each individual observation from the sample mean. A large SD means individuals are very different from each other. A small SD means they are similar. It is a property of the population being studied, not of your experiment.</p>
+  </div>
+
+  <div class="fig-narrow">
+    <figure class="fig-inner">
+      <img src="img/plot1_sd_distribution.png"
+           alt="Distribution of individual values with SD"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">📊 plot1_sd_distribution.png<br><small>run Script 02 to generate</small></div>
+      <figcaption><strong>Figure 1.</strong> Distribution of petal lengths in <em>Iris setosa</em> (n = 50). The dashed lines mark $\bar{x} \pm SD$. About 68% of petals fall within this range. The SD describes the biological variability of the species — it does not depend on how many individuals you measured.</figcaption>
+    </figure>
+  </div>
+
+  <div class="l-body">
+    <div class="formula-box">
+      <span class="formula-label">Sample Standard Deviation</span>
+      $$s = \sqrt{\dfrac{\displaystyle\sum_{i=1}^{n}(x_i - \bar{x})^2}{n-1}}$$
+      <p class="formula-note">$x_i$ = individual observation &ensp;|&ensp; $\bar{x}$ = sample mean &ensp;|&ensp; $n-1$ = degrees of freedom (Bessel's correction)</p>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-title">Why n − 1?</span>
+      <p>Dividing by $n-1$ rather than $n$ makes the sample variance an unbiased estimator of the population variance $\sigma^2$. The sample mean $\bar{x}$ is itself estimated from the data, which uses up one degree of freedom. This will be explored in a dedicated notebook.</p>
+    </div>
+
+    <h3>Standard Error — the answer to the second question</h3>
+    <p>The Standard Error of the Mean (SE) estimates how much the sample mean would vary if you repeated the experiment many times. More precisely, it is the standard deviation of the <em>sampling distribution of the mean</em> — the distribution of all possible sample means you could obtain from the same population.</p>
+
+    <p>The SE is always smaller than the SD. It shrinks as you collect more data, because larger samples produce more stable mean estimates. Crucially, this does not mean the individuals become less variable — it means your estimate of their average becomes more reliable.</p>
+  </div>
+
+  <div class="fig-narrow">
+    <figure class="fig-inner">
+      <img src="img/sampling_distribution.gif"
+           alt="As n increases, SD stays constant while SE shrinks"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">📊 sampling_distribution.gif<br><small>run Script 03 to generate</small></div>
+      <figcaption><strong>Animation 1.</strong> As sample size $n$ increases, individual data points accumulate (left) but the SD — and the biological variability — stays the same. Meanwhile the distribution of sample means (right) becomes progressively narrower. <strong>More data does not make individuals less variable. It makes the mean estimate more reliable.</strong> Note: the right panel shows the sampling distribution of the <em>mean</em>, not of the raw data. The Central Limit Theorem guarantees this distribution tends towards normality regardless of the shape of the original data.</figcaption>
+    </figure>
+  </div>
+
+  <div class="l-body">
+    <div class="formula-box">
+      <span class="formula-label">Standard Error of the Mean</span>
+      $$SE_{\bar{x}} = \dfrac{s}{\sqrt{n}}$$
+      <p class="formula-note">$s$ = sample standard deviation &ensp;|&ensp; $n$ = sample size &ensp;|&ensp; SE always decreases as $1/\sqrt{n}$</p>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-title">What SE is NOT</span>
+      <p>The Standard Error is not a measurement error, not instrument noise, and not a sign of poor data quality. It does not measure how much individuals differ from each other. It measures one specific thing: <strong>how much the sample mean would fluctuate if we repeated the sampling many times.</strong> A large SE means you need more data to pin down the mean reliably — nothing more, nothing less.</p>
+    </div>
+
+    <h3>Key properties at a glance</h3>
+    <ul class="prop-list">
+      <li>Both SD and SE are expressed in the <strong>same units as the data</strong> (e.g. cm, g, individuals per trap).</li>
+      <li>SD is <strong>stable</strong>: it converges to the true population SD $\sigma$ as $n$ grows, but does not systematically decrease.</li>
+      <li>SE <strong>decreases</strong> with $n$: to halve the SE you need to quadruple the sample size.</li>
+      <li>The ratio $SD/SE$ is always exactly $\sqrt{n}$ — structural, not accidental.</li>
+      <li>For roughly normal distributions, about <strong>68%</strong> of individuals fall within $\bar{x} \pm SD$.</li>
+      <li>The 95% Confidence Interval is approximately $\bar{x} \pm 1.96 \cdot SE$ for large samples.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="movement-sep"><span>Real data</span></div>
+
+<!-- ============================================================
+     M3 — LET US CHECK ON REAL DATA
+     ============================================================ -->
+<div class="movement" id="real-data">
+  <div class="l-body">
+    <span class="movement-label">Movement 03</span>
+    <h2>Let Us Check on Real Data</h2>
+
+    <p class="dropcap">Theory is useful. Numbers are better. Let us calculate SD and SE on the <em>Iris setosa</em> petal length data — 50 measurements, all in centimetres — and see what the results actually look like.</p>
+  </div>
+
+  <div class="l-wide">
+    <div class="r-box">
+      <div class="r-box-header">
+        <div class="r-box-title">
+          <span class="r-tag">R</span>
+          <span>Script 01 — Calculating SD and SE</span>
+          <span style="color:#aaa">·</span>
+          <span style="color:#aaa; font-size:.72rem">R/01_calcolo_sd_se.R</span>
+        </div>
+        <a href="../R/01_calcolo_sd_se.R" class="r-box-link" download>↓ Download</a>
+      </div>
+<pre><code class="language-r">data(iris)
+setosa_pl <- iris[iris$Species == "setosa", "Petal.Length"]
+
+n    <- length(setosa_pl)
+xbar <- mean(setosa_pl)
+sd_val <- sd(setosa_pl)          # Bessel's correction (n-1) applied
+se_val <- sd_val / sqrt(n)       # no built-in function in base R
+
+t_crit  <- qt(0.975, df = n - 1) # Student's t, df = 49
+ci_low  <- xbar - t_crit * se_val
+ci_high <- xbar + t_crit * se_val
+
+cat(sprintf("  n                    : %d\n",    n))
+cat(sprintf("  Mean                 : %.4f cm\n", xbar))
+cat(sprintf("  SD                   : %.4f cm\n", sd_val))
+cat(sprintf("  SE                   : %.4f cm\n", se_val))
+cat(sprintf("  SD / SE ratio        : %.2f  (= sqrt(%d) = %.2f)\n",
+            sd_val/se_val, n, sqrt(n)))
+cat(sprintf("  Mean ± SD            : [%.4f – %.4f] cm\n",
+            xbar-sd_val, xbar+sd_val))
+cat(sprintf("  Mean ± SE            : [%.4f – %.4f] cm\n",
+            xbar-se_val, xbar+se_val))
+cat(sprintf("  95%% CI (t, df=%d)   : [%.4f – %.4f] cm\n",
+            n-1, ci_low, ci_high))</code></pre>
+      <div class="r-output"><span class="r-output-label">Expected output</span>  n                    : 50
+  Mean                 : 1.4620 cm
+  SD                   : 0.1737 cm
+  SE                   : 0.0246 cm
+  SD / SE ratio        : 7.07  (= sqrt(50) = 7.07)
+  Mean ± SD            : [1.2883 – 1.6357] cm
+  Mean ± SE            : [1.4374 – 1.4866] cm
+  95% CI (t, df=49)    : [1.4126 – 1.5114] cm</div>
+    </div>
+  </div>
+
+  <div class="l-body">
+    <p>Three numbers stand out.</p>
+
+    <p><strong>SD = 0.174 cm.</strong> Individual petals deviate from the mean by about 0.17 cm on average. Roughly 68% of <em>I. setosa</em> petals are between 1.29 and 1.64 cm long. This is a statement about the biology of the species — not about your experiment.</p>
+
+    <p><strong>SE = 0.025 cm.</strong> Your sample mean of 1.462 cm is estimated with an uncertainty of ±0.025 cm. This tells you how reliable the estimate is, regardless of how much individuals vary.</p>
+
+    <p><strong>SD/SE = 7.07 = √50.</strong> Not a coincidence. Always exactly $\sqrt{n}$. With 200 observations instead of 50, the SD would stay ~0.174 cm while the SE would drop to ~0.012 cm. The individuals do not change. Your estimate improves.</p>
+
+    <div class="callout">
+      <span class="callout-title">95% Confidence Interval</span>
+      <p>We can say with 95% confidence that the true population mean of <em>I. setosa</em> petal length falls between 1.413 and 1.511 cm. For samples with $n \geq 30$ the normal approximation gives $CI_{95\%} \approx \bar{x} \pm 1.96 \cdot SE$. For smaller samples, use Student's $t$ quantile: <code>qt(0.975, df = n-1)</code>.</p>
+    </div>
+  </div>
+
+  <div class="l-wide">
+    <div class="r-box">
+      <div class="r-box-header">
+        <div class="r-box-title">
+          <span class="r-tag">R</span>
+          <span>Script 02 — Visualisation</span>
+          <span style="color:#aaa">·</span>
+          <span style="color:#aaa; font-size:.72rem">R/02_grafici_sd_se.R</span>
+        </div>
+        <a href="../R/02_grafici_sd_se.R" class="r-box-link" download>↓ Download</a>
+      </div>
+<pre><code class="language-r">library(ggplot2)
+# colours
+col_sd <- "#5e4b8b"; col_se <- "#e879a0"; col_mean <- "#1a1a2e"
+
+# Plot 1: individual distribution + SD
+p1 <- ggplot(data.frame(x = setosa_pl), aes(x = x)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 binwidth = 0.1, fill = "#9b72cf", color = "white", alpha = 0.7) +
+  geom_density(color = col_sd, linewidth = 1.2) +
+  geom_vline(xintercept = xbar, color = col_mean, linewidth = 1.2) +
+  geom_vline(xintercept = c(xbar-sd_val, xbar+sd_val),
+             color = col_sd, linetype = "dashed") +
+  labs(title = "Individual values — Iris setosa, Petal Length",
+       subtitle = "SD describes the spread of individual observations",
+       x = "Petal length (cm)", y = "Density") +
+  theme_minimal(base_size = 12)
+
+# Plot 2: SD vs SE as error bars
+# Plot 3: bootstrap sampling distribution
+# Plot 4: three-species comparison with SE
+# See full script for all four plots</code></pre>
+    </div>
+  </div>
+
+  <div class="fig-wide">
+    <figure class="fig-inner">
+      <img src="img/plot2_sd_vs_se.png"
+           alt="SD vs SE visual comparison"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">📊 plot2_sd_vs_se.png<br><small>run Script 02 to generate</small></div>
+      <figcaption><strong>Figure 2.</strong> SD (purple) vs SE (fuchsia) on the same scale. The SE (±0.025 cm) is barely visible compared to the SD (±0.174 cm). The ratio is $\sqrt{50} \approx 7$. Both are in centimetres. They describe completely different things.</figcaption>
+    </figure>
+  </div>
+
+  <div class="fig-wide">
+    <figure class="fig-inner">
+      <img src="img/plot3_bootstrap_se.png"
+           alt="Sampling distribution bootstrap"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">📊 plot3_bootstrap_se.png<br><small>run Script 02 to generate</small></div>
+      <figcaption><strong>Figure 3.</strong> Distribution of 5 000 bootstrap sample means. Its SD equals the theoretical SE — an empirical proof of what the SE is: the uncertainty of the sample mean. Note: this is the sampling distribution of the <em>mean</em>, not the distribution of the raw data. The Central Limit Theorem guarantees this distribution tends towards normality regardless of the shape of the original data — a concept we will explore in a dedicated notebook.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<div class="movement-sep"><span>The trap</span></div>
+
+<!-- ============================================================
+     M4 — THE COMMON TRAP
+     ============================================================ -->
+<div class="movement" id="trap">
+  <div class="l-body">
+    <span class="movement-label">Movement 04</span>
+    <h2>The Common Trap</h2>
+
+    <p class="dropcap">Here is the problem in its most visible form. The two figures below show exactly the same data — mean petal length for three <em>Iris</em> species — with two different error bars. Look at them before reading on.</p>
+  </div>
+
+  <div class="fig-wide">
+    <figure class="fig-inner">
+      <img src="img/plot4_species_comparison.png"
+           alt="Three species comparison SD vs SE"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">📊 plot4_species_comparison.png<br><small>run Script 02 to generate</small></div>
+      <figcaption><strong>Figure 4.</strong> Mean petal length for three <em>Iris</em> species with ±SE error bars. This is the correct use for comparative figures: the bars express uncertainty around the mean estimate, not the spread of individuals. Always declare which index is shown in the legend.</figcaption>
+    </figure>
+  </div>
+
+  <div class="l-body">
+    <p>When error bars represent the SD, they show you where individuals fall. When they represent the SE, they show you how precisely the mean was estimated. Since the SE is always smaller than the SD by a factor of $\sqrt{n}$, using SE in a descriptive figure makes the data look far less variable than it actually is.</p>
+
+    <p>This is not always a deliberate choice. Many authors use SE in comparative figures — which is correct — but then forget to declare it, leaving the reader to guess. A few practical rules:</p>
+
+    <ul class="prop-list">
+      <li><strong>Descriptive figure</strong> (showing individual variability): use SD.</li>
+      <li><strong>Comparative figure</strong> (comparing means between groups): use SE or 95% CI.</li>
+      <li><strong>Always declare</strong> which index is shown in the legend. "Error bars represent the error" is not sufficient.</li>
+      <li>When in doubt, <strong>95% CI is the most informative and transparent option</strong> for comparative plots. Some journals now require it.</li>
+    </ul>
+
+    <div class="callout warn">
+      <span class="callout-title">A note on publications</span>
+      <p>Reporting SE instead of SD in descriptive plots makes data look far less variable than they really are. This can mislead readers about the biological variability of the system being studied — which in ecology and agronomy can have real consequences for how results are interpreted and applied.</p>
+    </div>
+  </div>
+</div>
+
+<div class="movement-sep"><span>The rule</span></div>
+
+<!-- ============================================================
+     M5 — THE PRACTICAL RULE
+     ============================================================ -->
+<div class="movement" id="rule">
+  <div class="l-body">
+    <span class="movement-label">Movement 05</span>
+    <h2>The Practical Rule</h2>
+
+    <p class="dropcap">Everything above can be summarised in one table. Keep it close.</p>
+
+    <div class="rule-box">
+      <h3>When my goal is… I use…</h3>
+      <table class="comp-table">
+        <thead>
+          <tr><th>Goal</th><th>Index</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Describing how much individuals vary in my sample</td><td><strong>SD</strong></td></tr>
+          <tr><td>Checking whether an individual value is "normal" or unusual</td><td><strong>SD</strong></td></tr>
+          <tr><td>Estimating the uncertainty of my sample mean</td><td><strong>SE</strong></td></tr>
+          <tr><td>Building a confidence interval for the mean</td><td><strong>SE</strong></td></tr>
+          <tr><td>Comparing means across treatments, species or sites</td><td><strong>SE</strong> or <strong>95% CI</strong></td></tr>
+          <tr><td>Error bars in a comparative figure</td><td><strong>SE</strong> — always declare it</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The next time you see a figure with error bars — in a paper, a report, or your own results — ask one question: <em>what do these bars actually represent?</em> If the legend does not say, something is missing.</p>
+
+    <p>And if you are building the figure yourself: declare it. It takes three words in the legend. It is not just good practice. It is scientific honesty.</p>
+
+    <div class="future-note">
+      <span class="fn-title">Coming up in future notebooks</span>
+      <p>Sampling distribution and Central Limit Theorem · Bessel's correction and unbiased estimators · Student's t-test (one and two samples) · One-way ANOVA · Multiple comparisons and post-hoc tests · Effect size (Cohen's d, η²) · Statistical power and minimum sample size.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer>
+  <div class="inner">
+    <p><strong style="color:rgba(255,255,255,.85)">Statistics for Life Sciences</strong> — Open access teaching materials</p>
+    <p style="margin-top:.5rem">Dataset: <code>iris</code> (R.A. Fisher, 1936) &mdash; available in R with <code>data(iris)</code></p>
+    <p style="margin-top:.4rem">
+      R scripts: <a href="../R/01_calcolo_sd_se.R">01_calcolo_sd_se.R</a> &nbsp;&middot;&nbsp;
+      <a href="../R/02_grafici_sd_se.R">02_grafici_sd_se.R</a> &nbsp;&middot;&nbsp;
+      <a href="../R/03_animation_sd_se.R">03_animation_sd_se.R</a>
+    </p>
+    <p style="margin-top:.8rem; color:rgba(255,255,255,.3); font-size:.78rem">
+      Released under <a href="https://creativecommons.org/licenses/by/4.0/" style="color:#c084fc">CC BY 4.0</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    hljs.highlightAll();
+    document.getElementById('anno').textContent = new Date().getFullYear();
+  });
+</script>
+</body>
+</html>
