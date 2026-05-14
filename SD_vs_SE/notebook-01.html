@@ -676,10 +676,10 @@ footer code { background: rgba(255,255,255,0.1); color: var(--violet-light); pad
       <li>The 95% Confidence Interval is approximately $\bar{x} \pm 1.96 \cdot SE$ for large samples.</li>
     </ul>
      <div class="callout warn">
-      <span class="callout-title">A note on fundamental assumptions</span>
+      <span class="callout-title">Two important caveats</span>
         <ul>
-           <li> <p>The 68% Rule (SD): This proportion is only valid if your data follow a Normal distribution. If the distribution is heavily skewed or contains extreme values (outliers), the SD still describes the spread, but you can no longer accurately predict how many individuals fall within that specific range.</p> </li> 
-           <li> <p>The 1.96 Factor (SE): Approximating the 95% Confidence Interval using 1.96⋅SE is only reliable for large samples (n≥30). For smaller samples, the uncertainty in estimating the SD is greater and requires the use of correction coefficients—such as the Student’s t-value—to avoid underestimating the error </p></li>
+           <li> <p>The 68% rule we mentioned for SD only holds if your data follow a roughly Normal distribution. If your data are heavily skewed or contain extreme outliers, the SD still describes the spread accurately, but you cannot trust the "68% of observations" statement.
+Similarly, the factor 1.96 for the 95% CI is only reliable if you have a reasonably large sample (n ≥ 30). With smaller samples, the uncertainty itself has more uncertainty, and you must use Student's t instead. This is why we used the t-distribution in our earlier calculation on Iris setosa—and why we will dedicate an entire notebook to it.</p> </li> 
         </ul>
    
     </div>
@@ -826,7 +826,7 @@ p1 <- ggplot(data.frame(x = setosa_pl), aes(x = x)) +
     <span class="movement-label">Movement 04</span>
     <h2>The Common Trap</h2>
 
-    <p class="dropcap">Here is the problem in its most visible form. The two figures below show exactly the same data — mean petal length for three <em>Iris</em> species — with two different error bars. Look at them before reading on.</p>
+    <p class="dropcap">Here is the problem in its most visible form. The two figures below show exactly the same data — mean petal length for three <em>Iris</em> species — with two different error bars. Look at them before reading on. Watch carefully what changes when you switch from SE to SD — and how misleading the choice can be</p>
   </div>
 
   <div class="fig-wide">
@@ -835,7 +835,7 @@ p1 <- ggplot(data.frame(x = setosa_pl), aes(x = x)) +
            alt="Three species comparison SD vs SE"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="fig-placeholder" style="display:none">📊 plot4+plot5.png <br><small>run Script 02 to generate</small></div>
-      <figcaption><strong>Figure 4.</strong> Mean petal length accros three <em>Iris</em> species.Error bars represent the Standard Error (SE), reflecting the uncertainty surrounding the mean estimate. This approach is preferred for comparative analysis between species. Conversely, the Standard Deviation (SD) shown in the right-hand graph illustrates the natural variance and spread of individual data points within each population.</figcaption>
+      <figcaption><strong>Figure 4. The same data, two different visualisations. Left: error bars show SE — the mean estimate is very precise. Right: error bars show SD — the individuals are much more variable than the left panel suggests. This is the trap: identical data, wildly different visual impression.</figcaption>
     </figure>
   </div>
 
