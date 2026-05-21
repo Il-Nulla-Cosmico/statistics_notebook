@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Confidence Interval — Statistics for Life Sciences, Notebook 02</title>
+<meta name="description" content="A concise notebook on confidence intervals for biologists, entomologists and agronomists. What 95% really means, how to calculate and read a CI. Examples in R.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS — Distill style + GREEN palette
+   ============================================================ */
+:root {
+  --green:        #1e6b45;
+  --green-mid:    #40916c;
+  --green-light:  #74c69d;
+  --green-pale:   #d8f3dc;
+  --teal:         #1a7a6e;
+  --teal-pale:    #d0f0ec;
+  --lime:         #52b788;
+  --lime-pale:    #e8f7ef;
+  --blue:         #1565c0;
+  --blue-pale:    #e3f0fc;
+  --text:         #0d1f17;
+  --text-muted:   #6b7280;
+  --bg:           #ffffff;
+  --bg-off:       #f9faf9;
+  --border:       #e5e7eb;
+  --r-bg:         #f4f6f4;
+  --r-header-bg:  #e8ebe8;
+  --r-output-bg:  #0d1f17;
+  --serif:        'Lora', Georgia, serif;
+  --display:      'Playfair Display', Georgia, serif;
+  --mono:         'JetBrains Mono', monospace;
+  --col-text:     680px;
+  --col-wide:     960px;
+  --col-full:     1100px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html  { scroll-behavior: smooth; }
+body  {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.85;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* ============================================================
+   DISTILL LAYOUT
+   ============================================================ */
+.l-body { max-width: var(--col-text); margin: 0 auto; padding: 0 1.5rem; }
+.l-wide { max-width: var(--col-wide); margin: 0 auto; padding: 0 1.5rem; }
+.l-full { max-width: var(--col-full); margin: 0 auto; padding: 0 1.5rem; }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.site-header {
+  border-top: 4px solid var(--green);
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  max-width: var(--col-text);
+  margin: 0 auto;
+}
+.site-header .series-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+  display: block;
+  margin-bottom: 1.4rem;
+}
+.site-header h1 {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 0.8rem;
+}
+.site-header h1 em { color: var(--green); font-style: italic; }
+.site-header .subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 1.8rem;
+  line-height: 1.6;
+}
+.site-header .meta {
+  display: flex; flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.site-header .divider {
+  width: 48px; height: 3px;
+  background: var(--green-light);
+  margin: 2rem auto 0;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   STICKY NAV
+   ============================================================ */
+nav.toc {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+nav.toc .toc-inner {
+  max-width: var(--col-wide); margin: 0 auto;
+  display: flex; align-items: center;
+  flex-wrap: wrap; gap: 0.2rem;
+}
+nav.toc .toc-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-right: 1rem;
+}
+nav.toc a {
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.25em 0.6em;
+  border-radius: 3px;
+  transition: background 0.15s, color 0.15s;
+}
+nav.toc a:hover { background: var(--green-pale); color: var(--green); }
+
+/* ============================================================
+   MAIN & MOVEMENTS
+   ============================================================ */
+main { padding: 4rem 0 5rem; }
+.movement { margin-bottom: 5rem; }
+.movement[id] { scroll-margin-top: 60px; }
+
+.movement-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--green-mid);
+  margin-bottom: 0.6rem;
+}
+h2 {
+  font-family: var(--display);
+  font-size: 1.85rem; font-weight: 700;
+  color: var(--text); line-height: 1.2;
+  margin-bottom: 1.8rem;
+}
+h3 {
+  font-family: var(--display);
+  font-size: 1.18rem; font-weight: 600;
+  color: var(--text);
+  margin: 2.2rem 0 0.7rem;
+}
+p { margin-bottom: 1.1rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+a { color: var(--green); text-underline-offset: 2px; }
+a:hover { color: var(--teal); }
+code {
+  font-family: var(--mono);
+  font-size: 0.83em;
+  background: #edf5f0;
+  color: #1e5c3a;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+}
+
+/* ============================================================
+   DROPCAP
+   ============================================================ */
+.dropcap::first-letter {
+  font-family: var(--display);
+  font-size: 3.8rem; font-weight: 700;
+  float: left;
+  line-height: 0.78;
+  margin-right: 0.1em; margin-top: 0.08em;
+  color: var(--green);
+}
+
+/* ============================================================
+   FORMULA BOX
+   ============================================================ */
+.formula-box {
+  background: var(--green-pale);
+  border-left: 3px solid var(--green);
+  border-radius: 0 8px 8px 0;
+  padding: 1.4rem 1.8rem;
+  margin: 1.8rem 0;
+  overflow-x: auto;
+}
+.formula-box .formula-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--green);
+  display: block;
+  margin-bottom: 0.8rem;
+}
+.formula-box .formula-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   CALLOUT
+   ============================================================ */
+.callout {
+  border-left: 3px solid var(--green);
+  background: var(--green-pale);
+  padding: 0.9rem 1.3rem;
+  border-radius: 0 6px 6px 0;
+  margin: 1.6rem 0;
+}
+.callout.warn  { border-color: var(--teal);  background: var(--teal-pale); }
+.callout.info  { border-color: var(--blue);  background: var(--blue-pale); }
+.callout-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--green);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.callout.warn .callout-title { color: var(--teal); }
+.callout.info .callout-title { color: var(--blue); }
+.callout p { margin: 0; font-size: 0.93rem; max-width: none; }
+.callout p + p { margin-top: 0.6rem; }
+
+/* ============================================================
+   PROP LIST
+   ============================================================ */
+.prop-list { list-style: none; padding: 0; margin: 0.6rem 0 1.2rem; }
+.prop-list li {
+  padding: 0.45rem 0 0.45rem 1.6rem;
+  position: relative;
+  border-bottom: 1px solid #d8f3dc;
+  font-size: 0.97rem;
+}
+.prop-list li:last-child { border-bottom: none; }
+.prop-list li::before { content: '▸'; position: absolute; left: 0; color: var(--green); }
+
+/* ============================================================
+   CI VISUAL — preformatted block for the interval diagram
+   ============================================================ */
+.ci-visual {
+  background: var(--bg-off);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.2rem 1.6rem;
+  margin: 1.8rem 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 2;
+  overflow-x: auto;
+  color: var(--text);
+}
+.ci-visual .ci-hit  { color: var(--green); font-weight: 600; }
+.ci-visual .ci-miss { color: #c0392b;      font-weight: 600; }
+.ci-visual .ci-note { color: var(--text-muted); font-size: 0.72rem; }
+
+/* ============================================================
+   R CODE BOX
+   ============================================================ */
+.r-box {
+  background: var(--r-bg);
+  border: 1px solid #ccd8cc;
+  border-left: 4px solid var(--green);
+  border-radius: 0 8px 8px 0;
+  margin: 2.5rem 0;
+  overflow: hidden;
+}
+.r-box-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.2rem;
+  background: var(--r-header-bg);
+  border-bottom: 1px solid #ccd8cc;
+  gap: 1rem; flex-wrap: wrap;
+}
+.r-box-title {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-family: var(--mono); font-size: 0.78rem;
+  color: #1a3a2a; font-weight: 500;
+}
+.r-tag {
+  background: var(--green); color: #fff;
+  font-family: var(--mono); font-size: 0.62rem;
+  padding: 0.2em 0.6em; border-radius: 3px;
+}
+.r-box-link {
+  font-family: var(--mono); font-size: 0.72rem;
+  color: var(--green); text-decoration: none;
+  padding: 0.22em 0.7em;
+  border: 1px solid var(--green); border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.r-box-link:hover { background: var(--green); color: #fff; }
+.r-box pre { margin: 0; padding: 1.1rem 1.4rem; background: transparent !important; overflow-x: auto; }
+.r-box pre code, .r-box pre code.hljs {
+  background: transparent !important;
+  font-family: var(--mono); font-size: 0.8rem; line-height: 1.65;
+}
+.r-output {
+  background: var(--r-output-bg); color: #74c69d;
+  font-family: var(--mono); font-size: 0.76rem;
+  padding: 0.9rem 1.4rem;
+  border-top: 1px solid #ccd8cc;
+  overflow-x: auto; line-height: 1.6; white-space: pre;
+}
+.r-output-label {
+  display: block; font-size: 0.62rem; color: var(--green-light);
+  margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   FIGURES
+   ============================================================ */
+.fig-wide   { margin: 2.5rem auto; max-width: var(--col-wide); padding: 0 1.5rem; }
+.fig-narrow { margin: 2rem auto;   max-width: var(--col-text); padding: 0 1.5rem; }
+.fig-inner  {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.fig-inner img { width: 100%; height: auto; display: block; }
+.fig-placeholder {
+  background: #edf5f0;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 200px;
+  font-family: var(--mono); font-size: 0.75rem;
+  color: var(--green-mid); text-align: center; padding: 1.5rem; line-height: 1.6;
+}
+figcaption {
+  padding: 0.7rem 1.1rem;
+  font-size: 0.83rem; color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  line-height: 1.55; font-style: italic;
+}
+figcaption strong { font-style: normal; color: var(--text); }
+
+/* ============================================================
+   COMPARISON TABLE
+   ============================================================ */
+.comp-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.92rem; }
+.comp-table th {
+  background: var(--green); color: #fff;
+  font-family: var(--serif); font-weight: 600;
+  padding: 0.6rem 1rem; text-align: left;
+}
+.comp-table th:first-child { border-radius: 4px 0 0 0; }
+.comp-table th:last-child  { border-radius: 0 4px 0 0; }
+.comp-table td { padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.comp-table tr:nth-child(even) td { background: var(--green-pale); }
+.comp-table tr:hover td { background: #c7ead0; transition: background 0.1s; }
+
+/* ============================================================
+   RULE BOX
+   ============================================================ */
+.rule-box {
+  background: linear-gradient(135deg, var(--green-pale) 0%, var(--teal-pale) 100%);
+  border: 1.5px solid var(--green-light);
+  border-radius: 10px;
+  padding: 2rem 2.2rem; margin: 2rem 0;
+}
+.rule-box h3 {
+  font-family: var(--display); font-size: 1.1rem;
+  color: var(--green); margin: 0 0 1rem;
+}
+
+/* ============================================================
+   FUTURE NOTE
+   ============================================================ */
+.future-note {
+  background: var(--bg-off); border: 1px dashed #74c69d;
+  border-radius: 6px; padding: 0.9rem 1.2rem;
+  margin: 1.8rem 0; font-size: 0.88rem; color: var(--text-muted);
+}
+.future-note .fn-title {
+  font-family: var(--mono); font-size: 0.63rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--green-mid); display: block; margin-bottom: 0.35rem;
+}
+
+/* ============================================================
+   MOVEMENT SEPARATOR
+   ============================================================ */
+.movement-sep {
+  display: flex; align-items: center; gap: 1rem;
+  margin: 4rem auto;
+  max-width: var(--col-text); padding: 0 1.5rem;
+}
+.movement-sep::before,
+.movement-sep::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, transparent, var(--green-light), transparent);
+}
+.movement-sep span {
+  font-family: var(--mono); font-size: 0.65rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--green-mid); white-space: nowrap;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background: #0d1f17;
+  color: rgba(255,255,255,0.55);
+  padding: 2.5rem 1.5rem; margin-top: 4rem;
+}
+footer .inner {
+  max-width: var(--col-wide); margin: 0 auto;
+  font-size: 0.83rem; line-height: 1.7;
+}
+footer a { color: var(--green-light); }
+footer code {
+  background: rgba(255,255,255,0.1);
+  color: var(--green-light);
+  padding: 0.1em 0.4em; border-radius: 3px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  nav.toc a { font-size: 0.7rem; padding: 0.2em 0.4em; }
+  .comp-table { font-size: 0.8rem; }
+  .comp-table td, .comp-table th { padding: 0.4rem 0.6rem; }
+  .r-box pre code { font-size: 0.72rem; }
+  .fig-wide, .fig-narrow { padding: 0 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <span class="series-label">Statistics for Life Sciences &mdash; Notebook 02</span>
+  <h1>The <em>Confidence</em> Interval</h1>
+  <p class="subtitle">What it means to say &ldquo;I am 95% confident&rdquo; &middot; A short note</p>
+  <div class="meta">
+    <span>📅 <span id="anno"></span></span>
+    <span>🌾 Fertiliser yield experiment</span>
+    <span>💻 R base</span>
+    <span>⏱ ~10 min</span>
+  </div>
+  <div class="divider"></div>
+</header>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="toc-inner">
+    <span class="toc-label">Contents</span>
+    <a href="#number">The Number</a>
+    <a href="#meaning">The 95%</a>
+    <a href="#calculation">The Calculation</a>
+    <a href="#reading">How to Read It</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============================================================
+     M1 — THE NUMBER THAT HIDES TOO MUCH
+     ============================================================ -->
+<div class="movement" id="number">
+  <div class="l-body">
+    <span class="movement-label">Movement 01</span>
+    <h2>The Number That Hides Too Much</h2>
+
+    <p class="dropcap">You have just concluded an experiment. You measured the yield of two fertilisers on eight fields — four fields per treatment. The standard fertiliser produced a mean of 4200 kg/ha, the new one 4350 kg/ha. The difference is 150 kg/ha.</p>
+
+    <p>You publish this number. A colleague in another laboratory repeats the experiment and obtains a difference of 80 kg/ha. Another gets 210 kg/ha. Who is right?</p>
+
+    <p>All three of them. Every sample mean is a different estimate of the same true value — a value you will never know with absolute certainty, because you cannot measure every field in the world with every possible fertiliser. What you can do is build an interval around your estimate and say: somewhere in here, the true effect is hiding.</p>
+
+    <p>This is the confidence interval. Not a single number that pretends to be exact. An interval that openly admits its own uncertainty.</p>
+
+    <p>The width of this interval is not a secondary detail — it is the main message. A narrow interval tells you that your estimate is precise: you have enough data, variability is contained, and you know with reasonable confidence where the true value lies. A wide interval tells you the opposite: you have few data, or your data vary greatly, and your estimate is still rough. Publishing only the mean without the interval is like saying "I live in Milan" without specifying the neighbourhood — technically correct, practically of little use.</p>
+
+    <p>The p-value tells you whether something happened. The confidence interval tells you <strong>how much</strong> happened, and <strong>how precisely</strong> you know it. They are answers to different questions. In modern statistics, the confidence interval is increasingly considered the more informative of the two — because knowing that "the treatment works" is far less useful than knowing that "the treatment increases yield by between 128 and 172 kg/ha."</p>
+  </div>
+</div>
+
+<div class="movement-sep"><span>What 95% means</span></div>
+
+<!-- ============================================================
+     M2 — WHAT THE 95% ACTUALLY MEANS
+     ============================================================ -->
+<div class="movement" id="meaning">
+  <div class="l-body">
+    <span class="movement-label">Movement 02</span>
+    <h2>What the 95% Actually Means</h2>
+
+    <p class="dropcap">Here is where most people get it wrong — and where clarity matters enormously.</p>
+
+    <p>A 95% confidence interval does <strong>not</strong> mean that there is a 95% probability that the true value lies within your interval.</p>
+
+    <p>This sentence sounds right. It feels right. It is wrong.</p>
+
+    <p>The true value is a fixed number. It exists in nature. It does not move. It is either inside your interval or it is not — there is no probability involved, only ignorance.</p>
+
+    <p>What moves is the interval itself. Every time you repeat the experiment, you collect slightly different data, obtain a slightly different mean, and build a slightly different interval — centred each time on the difference observed in that particular experiment. The 95% describes the behaviour of this procedure over the long run: if you repeated the experiment 100 times, 95 of your intervals would contain the true population value. The remaining 5 would miss it entirely.</p>
+  </div>
+
+  <div class="l-wide">
+    <div class="ci-visual">
+      <div>True effect in the population = <strong>fixed, never moves</strong></div>
+      <br>
+      <div class="ci-hit">Experiment 01:  centre 148  →  [126 ————————— 170]  ✅ contains true value</div>
+      <div class="ci-hit">Experiment 02:  centre 155  →  [133 ————————— 177]  ✅ contains true value</div>
+      <div class="ci-hit">Experiment 03:  centre 161  →  [139 ————————— 183]  ✅ contains true value</div>
+      <div class="ci-miss">Experiment 04:  centre 168  →  [146 ————————— 190]  ❌ misses true value</div>
+      <div class="ci-hit">Experiment 05:  centre 145  →  [123 ————————— 167]  ✅ contains true value</div>
+      <div class="ci-note">                                          · · ·</div>
+      <div class="ci-note">Out of 100 experiments: ~95 intervals contain the true value, ~5 miss it.</div>
+    </div>
+  </div>
+
+  <div class="l-body">
+    <p>The vertical line of the true value is fixed. Each interval has a different centre — the mean observed in that experiment — and shifts with it. When you publish your CI [128 – 172] you are saying: <em>I used a method that works 95 times out of 100. I do not know whether this specific interval is one of the lucky 95 or one of the unfortunate 5. But the procedure I followed is reliable.</em></p>
+
+    <p>It is a statement about the method, not about any single measurement.</p>
+
+    <div class="callout warn">
+      <span class="callout-title">Two important notes</span>
+      <p><strong>On the true value we do not know.</strong> In the examples throughout this notebook we have used 150 kg/ha as the "true population effect." This is a didactic device. In reality, the true value of the population is precisely what you are trying to estimate — you do not know it. In the simulation of 100 experiments we fix it artificially to show visually how the mechanism works. In a real experiment that vertical line exists, but you cannot see it.</p>
+      <p><strong>Why we use Student's t and not 1.96.</strong> If you knew the true variability of the population (σ), you could use 1.96 from the standard normal distribution. In practice you never know it — you estimate σ from the SD of your sample (s). This substitution introduces a second source of uncertainty: you are uncertain about the mean, and uncertain about your estimate of the variability too. Student's t corrects for both uncertainties by widening the interval — the more so the smaller the sample. With 4 fields per group the critical value is 3.18 instead of 1.96. With 40 fields it falls to 2.02. With very large samples (n &gt; 100) it converges to 1.96 and the difference becomes negligible.</p>
+    </div>
+  </div>
+</div>
+
+<div class="movement-sep"><span>The calculation</span></div>
+
+<!-- ============================================================
+     M3 — HOW IT IS CALCULATED
+     ============================================================ -->
+<div class="movement" id="calculation">
+  <div class="l-body">
+    <span class="movement-label">Movement 03</span>
+    <h2>How It Is Calculated: The Pieces of the Mechanism</h2>
+
+    <p class="dropcap">Back to your eight fields. Four with fertiliser A, four with fertiliser B.</p>
+
+    <div class="ci-visual" style="font-size:0.82rem; line-height:1.9">
+      <div>Group A:  4100, 4250, 4150, 4300  →  mean = 4200 kg/ha</div>
+      <div>Group B:  4400, 4300, 4450, 4250  →  mean = 4350 kg/ha</div>
+      <br>
+      <div><strong>Observed difference = 150 kg/ha</strong></div>
+    </div>
+
+    <p>The confidence interval is not calculated on the mean of a single group. It is calculated on the <strong>difference between the two means</strong> — because that is the question: what is the true effect of the new fertiliser?</p>
+
+    <div class="formula-box">
+      <span class="formula-label">95% Confidence Interval for the difference</span>
+      $$CI_{95\%} = \text{difference} \pm t^* \cdot SE_{diff}$$
+      <p class="formula-note">Three ingredients. Each does one precise thing.</p>
+    </div>
+
+    <p><strong>The observed difference (150 kg/ha)</strong> is the centre of the interval — your best estimate of the true effect.</p>
+
+    <p><strong>The SE of the difference</strong> measures how precise that estimate is. It is calculated from the internal variability of each group and the sample size:</p>
+
+    <div class="formula-box">
+      <span class="formula-label">Standard Error of the difference</span>
+      $$SE_{diff} = \sqrt{\frac{SD_A^2}{n_A} + \frac{SD_B^2}{n_B}} = \sqrt{\frac{87^2}{4} + \frac{92^2}{4}} \approx 63 \text{ kg/ha}$$
+      <p class="formula-note">With only 4 fields per group, the SE is large — few measurements, high uncertainty.</p>
+    </div>
+
+    <p><strong>The critical value t*</strong> is the multiplier that decides how wide the interval must be. It comes from Student's t distribution and depends on two things: how much data you have (degrees of freedom = n − 1 per group) and how confident you want to be (95%? 99%?).</p>
+
+    <div class="callout info">
+      <span class="callout-title">One-tailed or two-tailed?</span>
+      <p>With df = 6 and 95% confidence, the two-tailed t table gives t* = 2.447. You always use two tails for a CI, because the interval is symmetric — the 5% of error is split equally, 2.5% on each side. If you look up the 95% one-tailed column you find 1.943: correct for directional tests, wrong for the CI.</p>
+    </div>
+
+    <p>Putting it all together:</p>
+
+    <div class="formula-box">
+      <span class="formula-label">Result</span>
+      $$CI_{95\%} = 150 \pm 2.447 \times 63 = 150 \pm 154 = [-4 \text{ — } 304] \text{ kg/ha}$$
+    </div>
+  </div>
+
+  <div class="l-wide">
+    <div class="r-box">
+      <div class="r-box-header">
+        <div class="r-box-title">
+          <span class="r-tag">R</span>
+          <span>Script 04 — Calculating CI from two groups</span>
+          <span style="color:#aaa">·</span>
+          <span style="color:#aaa; font-size:.72rem">R/04_ci_calculation.R</span>
+        </div>
+        <a href="../R/04_ci_calculation.R" class="r-box-link" download>↓ Download</a>
+      </div>
+<pre><code class="language-r">group_A <- c(4100, 4250, 4150, 4300)
+group_B <- c(4400, 4300, 4450, 4250)
+
+# t.test does all the work
+result <- t.test(group_B, group_A)
+
+cat(sprintf("  Mean difference   : %.1f kg/ha\n",
+            mean(group_B) - mean(group_A)))
+cat(sprintf("  95%% CI            : [%.1f — %.1f] kg/ha\n",
+            result$conf.int[1], result$conf.int[2]))
+cat(sprintf("  t statistic       : %.3f\n", result$statistic))
+cat(sprintf("  degrees of freedom: %.1f\n", result$parameter))
+cat(sprintf("  p-value           : %.4f\n", result$p.value))</code></pre>
+      <div class="r-output"><span class="r-output-label">Expected output</span>  Mean difference   : 150.0 kg/ha
+  95% CI            : [-3.9 — 303.9] kg/ha
+  t statistic       : 1.982
+  degrees of freedom: 5.9
+  p-value           : 0.0951</div>
+    </div>
+  </div>
+
+  <div class="l-body">
+    <div class="callout">
+      <span class="callout-title">Note on the p-value</span>
+      <p>With only 4 fields per group, p = 0.095 — not significant at the conventional threshold of 0.05. The CI [-4 — 304] contains zero, which is consistent: if the interval includes zero, the difference is not statistically significant. The two pieces of information always tell the same story.</p>
+    </div>
+  </div>
+</div>
+
+<div class="movement-sep"><span>How to read it</span></div>
+
+<!-- ============================================================
+     M4 — HOW TO READ IT
+     ============================================================ -->
+<div class="movement" id="reading">
+  <div class="l-body">
+    <span class="movement-label">Movement 04</span>
+    <h2>How to Read It — Three Rules</h2>
+
+    <p class="dropcap">You have your interval. What is it telling you?</p>
+
+    <p>The interval [-4 — 304] contains zero. This is the most important signal. It means that among the values compatible with your data there is also "difference = 0" — the two fertilisers could be identical. You cannot rule this out. Predictably, the t-test gives p &gt; 0.05 and you cannot draw any solid conclusion.</p>
+
+    <p>But the interval also contains 304 kg/ha. Your data are compatible both with a useless fertiliser and with an extraordinarily effective one. The problem is not the fertiliser — it is that with 4 fields per group you do not have enough information to tell these scenarios apart. You need more replicates.</p>
+
+    <h3>Rule 1 — Look at the width, not just the centre</h3>
+    <p>A CI of [-4 — 304] and a CI of [128 — 172] both have 150 kg/ha as their central estimate. But the first tells you almost nothing useful, the second lets you make a decision. Width is the measure of your precision.</p>
+
+    <h3>Rule 2 — Check whether the interval contains zero</h3>
+    <p>If the CI contains zero, you cannot claim that the two treatments differ. If it does not contain zero, you have evidence of a real effect — and the interval also tells you how large that effect is.</p>
+
+    <h3>Rule 3 — Always report the CI alongside the p-value</h3>
+    <p>A p-value of 0.03 tells you the difference is unlikely to be due to chance. A CI of [0.01 — 0.02 kg/ha] tells you the difference is real but agronomically irrelevant. A CI of [120 — 180 kg/ha] tells you the difference is real and potentially very important. The CI carries information the p-value cannot carry: the <em>how much</em>.</p>
+
+    <div class="rule-box">
+      <h3>Quick reference</h3>
+      <table class="comp-table">
+        <thead>
+          <tr><th>Situation</th><th>Conclusion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CI does not contain zero, narrow</td><td>Real effect, estimate is precise — you can decide</td></tr>
+          <tr><td>CI does not contain zero, wide</td><td>Real effect, but estimate is imprecise — more data needed</td></tr>
+          <tr><td>CI contains zero, wide</td><td>No conclusion — sample too small</td></tr>
+          <tr><td>CI contains zero, narrow</td><td>No effect, or effect so small it is negligible</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="fig-wide">
+    <figure class="fig-inner">
+      <img src="img/plot_ci_definition.png"
+           alt="100 simulated experiments showing the frequentist definition of CI"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">📊 plot_ci_definition.png<br><small>run Script 05 to generate</small></div>
+      <figcaption><strong>Figure 1.</strong> 100 simulated experiments. Each horizontal bar is a 95% CI from one experiment. <strong>Green bars</strong> contain the true value (fixed vertical line). <strong>Red bars</strong> miss it. Out of 100 experiments, approximately 95 succeed and 5 fail. This is what "95% confidence" means: a statement about the procedure, not about any single interval.</figcaption>
+    </figure>
+  </div>
+
+  <div class="fig-wide">
+    <figure class="fig-inner">
+      <img src="img/plot_ci_width_comparison.png"
+           alt="CI width comparison: n=8 vs n=80 fields"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fig-placeholder" style="display:none">📊 plot_ci_width_comparison.png<br><small>run Script 05 to generate</small></div>
+      <figcaption><strong>Figure 2.</strong> The same observed difference (150 kg/ha) with two different sample sizes. With 8 fields the CI is wide and contains zero — no conclusion possible. With 80 fields the CI is narrow and does not contain zero — the effect is real and well estimated. The bars are identical. Only the error bars change.</figcaption>
+    </figure>
+  </div>
+
+  <div class="l-body">
+    <div class="future-note">
+      <span class="fn-title">Coming up in future notebooks</span>
+      <p>Student's t-test — one and two samples · One-way ANOVA · Multiple comparisons and post-hoc tests · Effect size (Cohen's d, η²) · Statistical power and minimum sample size · Normal distribution and its assumptions.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <p><strong style="color:rgba(255,255,255,.85)">Statistics for Life Sciences</strong> — Open access teaching materials</p>
+    <p style="margin-top:.5rem">
+      R scripts:
+      <a href="../R/04_ci_calculation.R">04_ci_calculation.R</a> &nbsp;&middot;&nbsp;
+      <a href="../R/05_ci_visualisation.R">05_ci_visualisation.R</a>
+    </p>
+    <p style="margin-top:.8rem; color:rgba(255,255,255,.3); font-size:.78rem">
+      Released under <a href="https://creativecommons.org/licenses/by/4.0/" style="color:#74c69d">CC BY 4.0</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    hljs.highlightAll();
+    document.getElementById('anno').textContent = new Date().getFullYear();
+  });
+</script>
+</body>
+</html>
