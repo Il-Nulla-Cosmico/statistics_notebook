@@ -555,7 +555,7 @@ footer code {
     <div class="callout warn">
       <span class="callout-title">Two important notes</span>
       <p><strong>On the true value we do not know.</strong> In the examples throughout this notebook we have used 150 kg/ha as the "true population effect." This is a didactic device. In reality, the true value of the population is precisely what you are trying to estimate — you do not know it. In the simulation of 100 experiments we fix it artificially to show visually how the mechanism works. In a real experiment that vertical line exists, but you cannot see it.</p>
-      <p><strong>Why we use Student's t and not 1.96.</strong> If you knew the true variability of the population (σ), you could use 1.96 from the standard normal distribution. In practice you never know it — you estimate σ from the SD of your sample (s). This substitution introduces a second source of uncertainty: you are uncertain about the mean, and uncertain about your estimate of the variability too. Student's t corrects for both uncertainties by widening the interval — the more so the smaller the sample. With 4 fields per group the critical value is 3.18 instead of 1.96. With 40 fields it falls to 2.02. With very large samples (n &gt; 100) it converges to 1.96 and the difference becomes negligible.</p>
+      <p><strong>Why we use Student's t and not 1.96.</strong> If you knew the true variability of the population (σ), you could use 1.96 from the standard normal distribution. In practice you never know it — you estimate σ from the SD of your sample (s). This substitution introduces a second source of uncertainty: you are uncertain about the mean, and uncertain about your estimate of the variability too. Student's t corrects for both uncertainties by widening the interval — the more so the smaller the sample. With 4 fields per group (total n = 8, so 6 degrees of freedom), the critical value is 2.447 instead of 1.96. With 40 fields it falls to 2.02. With very large samples (n &gt; 100) it converges to 1.96 and the difference becomes negligible.</p>
     </div>
   </div>
 </div>
@@ -623,24 +623,54 @@ footer code {
         </div>
         <a href="../R/04_ci_calculation.R" class="r-box-link" download>↓ Download</a>
       </div>
-<pre><code class="language-r">group_A <- c(4100, 4250, 4150, 4300)
+<pre><code class="language-r"># ============================================================
+# Statistics for Life Sciences
+# Notebook 02 — The Confidence Interval
+# Script 04: Calculation of CI from two groups
+# Dataset: fertiliser yield experiment (8 fields)
+# ============================================================
+
+group_A <- c(4100, 4250, 4150, 4300)
 group_B <- c(4400, 4300, 4450, 4250)
 
-# t.test does all the work
-result <- t.test(group_B, group_A)
+n_A  <- length(group_A); n_B <- length(group_B)
+sd_A <- sd(group_A);     sd_B <- sd(group_B)
 
-cat(sprintf("  Mean difference   : %.1f kg/ha\n",
-            mean(group_B) - mean(group_A)))
+diff_obs <- mean(group_B) - mean(group_A)
+se_diff  <- sqrt(sd_A^2 / n_A + sd_B^2 / n_B)
+df       <- n_A + n_B - 2
+t_crit   <- qt(0.975, df = df)   # two-tailed, 95%
+
+ci_low  <- diff_obs - t_crit * se_diff
+ci_high <- diff_obs + t_crit * se_diff
+
+cat("=== Fertiliser yield experiment ===\n\n")
+cat(sprintf("  Group A mean      : %.1f kg/ha\n", mean(group_A)))
+cat(sprintf("  Group B mean      : %.1f kg/ha\n", mean(group_B)))
+cat(sprintf("  Observed diff     : %.1f kg/ha\n", diff_obs))
+cat(sprintf("  SD group A        : %.2f\n",        sd_A))
+cat(sprintf("  SD group B        : %.2f\n",        sd_B))
+cat(sprintf("  SE of difference  : %.2f\n",        se_diff))
+cat(sprintf("  df                : %d\n",            df))
+cat(sprintf("  t critical (2-t)  : %.3f\n",        t_crit))
+cat(sprintf("  95%% CI            : [%.1f — %.1f] kg/ha\n", ci_low, ci_high))
+cat("\n")
+
+# Confirm with Student's t.test (assuming equal variances)
+result <- t.test(group_B, group_A, var.equal = TRUE)
+cat("=== Confirmed via t.test() ===\n\n")
 cat(sprintf("  95%% CI            : [%.1f — %.1f] kg/ha\n",
             result$conf.int[1], result$conf.int[2]))
 cat(sprintf("  t statistic       : %.3f\n", result$statistic))
 cat(sprintf("  degrees of freedom: %.1f\n", result$parameter))
-cat(sprintf("  p-value           : %.4f\n", result$p.value))</code></pre>
+cat(sprintf("  p-value           : %.4f\n", result$p.value))
+cat(sprintf("  CI contains zero? : %s\n",
+            ifelse(result$conf.int[1] < 0, "YES — no significant difference", "NO — significant difference")))</code></pre>
       <div class="r-output"><span class="r-output-label">Expected output</span>  Mean difference   : 150.0 kg/ha
-  95% CI            : [-3.9 — 303.9] kg/ha
-  t statistic       : 1.982
-  degrees of freedom: 5.9
-  p-value           : 0.0951</div>
+  95% CI            : [-7.94 ; 307.9] kg/ha
+  t statistic       : 2.324
+  degrees of freedom: 6
+  p-value           : 0.0591</div>
     </div>
   </div>
 

@@ -26,13 +26,13 @@ cat(sprintf("  Observed diff     : %.1f kg/ha\n", diff_obs))
 cat(sprintf("  SD group A        : %.2f\n",        sd_A))
 cat(sprintf("  SD group B        : %.2f\n",        sd_B))
 cat(sprintf("  SE of difference  : %.2f\n",        se_diff))
-cat(sprintf("  df                : %d\n",           df))
+cat(sprintf("  df                : %d\n",            df))
 cat(sprintf("  t critical (2-t)  : %.3f\n",        t_crit))
 cat(sprintf("  95%% CI            : [%.1f — %.1f] kg/ha\n", ci_low, ci_high))
 cat("\n")
 
-# Confirm with t.test
-result <- t.test(group_B, group_A, var.equal = FALSE)
+# Confirm with Student's t.test (assuming equal variances)
+result <- t.test(group_B, group_A, var.equal = TRUE)
 cat("=== Confirmed via t.test() ===\n\n")
 cat(sprintf("  95%% CI            : [%.1f — %.1f] kg/ha\n",
             result$conf.int[1], result$conf.int[2]))
