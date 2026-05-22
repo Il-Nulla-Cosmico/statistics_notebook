@@ -608,7 +608,7 @@ footer code {
 
     <div class="formula-box">
       <span class="formula-label">Result</span>
-      $$CI_{95\%} = 150 \pm 2.447 \times 63 = 150 \pm 154 = [-4 \text{ — } 304] \text{ kg/ha}$$
+      $$CI_{95\%} = 150 \pm 2.447 \times 64.55 = 150 \pm 157.94 = [-7.94 \text{ — } 307.94] \text{ kg/ha}$$
     </div>
   </div>
 
@@ -677,7 +677,7 @@ cat(sprintf("  CI contains zero? : %s\n",
   <div class="l-body">
     <div class="callout">
       <span class="callout-title">Note on the p-value</span>
-      <p>With only 4 fields per group, p = 0.095 — not significant at the conventional threshold of 0.05. The CI [-4 — 304] contains zero, which is consistent: if the interval includes zero, the difference is not statistically significant. The two pieces of information always tell the same story.</p>
+      <p>With only 4 fields per group, p = 0.0591 — not significant at the conventional threshold of 0.05. The CI [-7.94 — 307.94] contains zero, which is consistent: if the interval includes zero, the difference is not statistically significant. The two pieces of information always tell the same story.</p>
     </div>
   </div>
 </div>
@@ -694,12 +694,12 @@ cat(sprintf("  CI contains zero? : %s\n",
 
     <p class="dropcap">You have your interval. What is it telling you?</p>
 
-    <p>The interval [-4 — 304] contains zero. This is the most important signal. It means that among the values compatible with your data there is also "difference = 0" — the two fertilisers could be identical. You cannot rule this out. Predictably, the t-test gives p &gt; 0.05 and you cannot draw any solid conclusion.</p>
+    <p>The interval [-7.94 — 307.94] contains zero. This is the most important signal. It means that among the values compatible with your data there is also "difference = 0" — the two fertilisers could be identical. You cannot rule this out. Predictably, the t-test gives p &gt; 0.05 and you cannot draw any solid conclusion.</p>
 
-    <p>But the interval also contains 304 kg/ha. Your data are compatible both with a useless fertiliser and with an extraordinarily effective one. The problem is not the fertiliser — it is that with 4 fields per group you do not have enough information to tell these scenarios apart. You need more replicates.</p>
+    <p>But the interval also contains 307.94 kg/ha. Your data are compatible both with a useless fertiliser and with an extraordinarily effective one. The problem is not the fertiliser — it is that with 4 fields per group you do not have enough information to tell these scenarios apart. You need more replicates.</p>
 
     <h3>Rule 1 — Look at the width, not just the centre</h3>
-    <p>A CI of [-4 — 304] and a CI of [128 — 172] both have 150 kg/ha as their central estimate. But the first tells you almost nothing useful, the second lets you make a decision. Width is the measure of your precision.</p>
+    <p>A CI of [-7.94 — 307.94] and a CI of [128 — 172] both have 150 kg/ha as their central estimate. But the first tells you almost nothing useful, the second lets you make a decision. Width is the measure of your precision.</p>
 
     <h3>Rule 2 — Check whether the interval contains zero</h3>
     <p>If the CI contains zero, you cannot claim that the two treatments differ. If it does not contain zero, you have evidence of a real effect — and the interval also tells you how large that effect is.</p>
