@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <script defer src="https://cloud.umami.is/script.js" data-website-id="d18c2bd5-46ad-4006-9144-2deb850b11ed"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One-Way ANOVA — Statistics for Life Sciences, Notebook 03</title>
+<meta name="description" content="Operational guide to one-way ANOVA: rationale, assumptions, R code, and correct interpretation of results.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS — Distill style + RED theme (Unified)
+   ============================================================ */
+:root {
+  /* Red Theme Palette */
+  --theme-main:   #b30000;
+  --theme-mid:    #cc0000;
+  --theme-light:  #ff4d4d;
+  --theme-pale:   #ffe6e6;
+  --theme-faint:  #fff0f0;
+
+  /* Neutrals and others */
+  --text:         #1a1110;
+  --text-muted:   #6b7280;
+  --bg:           #ffffff;
+  --bg-off:       #faf8f8;
+  --border:       #e5e7eb;
+  --r-bg:         #fcfaf9;
+  --r-header-bg:  #f5efed;
+  --r-output-bg:  #1a1110;
+  --r-output-txt: #ffcccc;
+  --serif:        'Lora', Georgia, serif;
+  --display:      'Playfair Display', Georgia, serif;
+  --mono:         'JetBrains Mono', monospace;
+  --col-text:     680px;
+  --col-wide:     960px;
+  --col-full:     1100px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html  { scroll-behavior: smooth; }
+body  {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.85;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* ============================================================
+   DISTILL LAYOUT
+   ============================================================ */
+.l-body { max-width: var(--col-text); margin: 0 auto; padding: 0 1.5rem; }
+.l-wide { max-width: var(--col-wide); margin: 0 auto; padding: 0 1.5rem; }
+.l-full { max-width: var(--col-full); margin: 0 auto; padding: 0 1.5rem; }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.site-header {
+  border-top: 4px solid var(--theme-main);
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  max-width: var(--col-text);
+  margin: 0 auto;
+}
+.site-header .series-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--theme-main);
+  display: block;
+  margin-bottom: 1.4rem;
+}
+.site-header h1 {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 0.8rem;
+}
+.site-header h1 em { color: var(--theme-main); font-style: italic; }
+.site-header .subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 1.8rem;
+  line-height: 1.6;
+}
+.site-header .meta {
+  display: flex; flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.site-header .divider {
+  width: 48px; height: 3px;
+  background: var(--theme-light);
+  margin: 2rem auto 0;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   STICKY NAV
+   ============================================================ */
+nav.toc {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+nav.toc .toc-inner {
+  max-width: var(--col-wide); margin: 0 auto;
+  display: flex; align-items: center;
+  flex-wrap: wrap; gap: 0.2rem;
+}
+nav.toc .toc-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-right: 1rem;
+}
+nav.toc a {
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.25em 0.6em;
+  border-radius: 3px;
+  transition: background 0.15s, color 0.15s;
+}
+nav.toc a:hover { background: var(--theme-pale); color: var(--theme-main); }
+
+/* ============================================================
+   MAIN & MOVEMENTS
+   ============================================================ */
+main { padding: 4rem 0 5rem; }
+.movement { margin-bottom: 5rem; }
+.movement[id] { scroll-margin-top: 60px; }
+
+.movement-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--theme-mid);
+  margin-bottom: 0.6rem;
+}
+h2 {
+  font-family: var(--display);
+  font-size: 1.85rem; font-weight: 700;
+  color: var(--text); line-height: 1.2;
+  margin-bottom: 1.8rem;
+}
+h3 {
+  font-family: var(--display);
+  font-size: 1.18rem; font-weight: 600;
+  color: var(--text);
+  margin: 2.2rem 0 0.7rem;
+}
+p { margin-bottom: 1.1rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+a { color: var(--theme-main); text-underline-offset: 2px; }
+a:hover { color: var(--theme-mid); }
+code {
+  font-family: var(--mono);
+  font-size: 0.83em;
+  background: var(--theme-faint);
+  color: var(--theme-main);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+}
+
+/* ============================================================
+   DROPCAP
+   ============================================================ */
+.dropcap::first-letter {
+  font-family: var(--display);
+  font-size: 3.8rem; font-weight: 700;
+  float: left;
+  line-height: 0.78;
+  margin-right: 0.1em; margin-top: 0.08em;
+  color: var(--theme-main);
+}
+
+/* ============================================================
+   FORMULA BOX (RED THEME)
+   ============================================================ */
+.formula-box {
+  background: var(--theme-pale);
+  border-left: 3px solid var(--theme-main);
+  border-radius: 0 8px 8px 0;
+  padding: 1.4rem 1.8rem;
+  margin: 1.8rem 0;
+  overflow-x: auto;
+}
+.formula-box .formula-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--theme-main);
+  display: block;
+  margin-bottom: 0.8rem;
+}
+.formula-box .formula-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   CALLOUT (RED THEME)
+   ============================================================ */
+.callout {
+  border-left: 3px solid var(--theme-main);
+  background: var(--theme-pale);
+  padding: 0.9rem 1.3rem;
+  border-radius: 0 6px 6px 0;
+  margin: 1.6rem 0;
+}
+.callout-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--theme-main);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.callout p { margin: 0; font-size: 0.93rem; max-width: none; }
+.callout p + p { margin-top: 0.6rem; }
+
+/* ============================================================
+   PROP LIST
+   ============================================================ */
+.prop-list { list-style: none; padding: 0; margin: 0.6rem 0 1.2rem; }
+.prop-list li {
+  padding: 0.45rem 0 0.45rem 1.6rem;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.97rem;
+}
+.prop-list li:last-child { border-bottom: none; }
+.prop-list li::before { content: '▸'; position: absolute; left: 0; color: var(--theme-main); }
+
+/* ============================================================
+   R CODE BOX
+   ============================================================ */
+.r-box {
+  background: var(--r-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--theme-main);
+  border-radius: 0 8px 8px 0;
+  margin: 2.5rem 0;
+  overflow: hidden;
+}
+.r-box-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.2rem;
+  background: var(--r-header-bg);
+  border-bottom: 1px solid var(--border);
+  gap: 1rem; flex-wrap: wrap;
+}
+.r-box-title {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-family: var(--mono); font-size: 0.78rem;
+  color: var(--text); font-weight: 500;
+}
+.r-tag {
+  background: var(--theme-main); color: #fff;
+  font-family: var(--mono); font-size: 0.62rem;
+  padding: 0.2em 0.6em; border-radius: 3px;
+}
+.r-box pre { margin: 0; padding: 1.1rem 1.4rem; background: transparent !important; overflow-x: auto; }
+.r-box pre code, .r-box pre code.hljs {
+  background: transparent !important;
+  font-family: var(--mono); font-size: 0.8rem; line-height: 1.65;
+}
+.r-output {
+  background: var(--r-output-bg); color: var(--r-output-txt);
+  font-family: var(--mono); font-size: 0.76rem;
+  padding: 0.9rem 1.4rem;
+  border-top: 1px solid var(--border);
+  overflow-x: auto; line-height: 1.6; white-space: pre;
+}
+.r-output-label {
+  display: block; font-size: 0.62rem; color: var(--text-muted);
+  margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   COMPARISON TABLE
+   ============================================================ */
+.comp-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.92rem; }
+.comp-table th {
+  background: var(--theme-main); color: #fff;
+  font-family: var(--serif); font-weight: 600;
+  padding: 0.6rem 1rem; text-align: left;
+}
+.comp-table th:first-child { border-radius: 4px 0 0 0; }
+.comp-table th:last-child  { border-radius: 0 4px 0 0; }
+.comp-table td { padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.comp-table tr:nth-child(even) td { background: var(--theme-faint); }
+.comp-table tr:hover td { background: var(--theme-light); color: white; transition: background 0.1s; }
+
+/* ============================================================
+   MOVEMENT SEPARATOR
+   ============================================================ */
+.movement-sep {
+  display: flex; align-items: center; gap: 1rem;
+  margin: 4rem auto;
+  max-width: var(--col-text); padding: 0 1.5rem;
+}
+.movement-sep::before,
+.movement-sep::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, transparent, var(--theme-light), transparent);
+}
+.movement-sep span {
+  font-family: var(--mono); font-size: 0.65rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--theme-mid); white-space: nowrap;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background: #0d1f17;
+  color: rgba(255,255,255,0.55);
+  padding: 2.5rem 1.5rem; margin-top: 4rem;
+}
+footer .inner {
+  max-width: var(--col-wide); margin: 0 auto;
+  font-size: 0.83rem; line-height: 1.7;
+}
+footer a { color: var(--theme-light); }
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  nav.toc a { font-size: 0.7rem; padding: 0.2em 0.4em; }
+  .comp-table { font-size: 0.8rem; }
+  .comp-table td, .comp-table th { padding: 0.4rem 0.6rem; }
+  .r-box pre code { font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <span class="series-label">Statistics for Life Sciences &mdash; Notebook 03</span>
+  <h1>One-Way <em>ANOVA</em></h1>
+  <p class="subtitle">Operational guide: rationale, assumptions, and correct interpretation in R</p>
+  <div class="meta">
+    <span>📅 <span id="anno"></span></span>
+    <span>🐛 Biology/Agronomy</span>
+    <span>💻 Base R</span>
+    <span>⏱ ~15 min</span>
+  </div>
+  <div class="divider"></div>
+</header>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="toc-inner">
+    <span class="toc-label">Contents</span>
+    <a href="#rationale">Rationale</a>
+    <a href="#usage">When to use it</a>
+    <a href="#assumptions">Assumptions</a>
+    <a href="#errors">Errors and limitations</a>
+    <a href="#practice">R Practice</a>
+    <a href="#interpretation">Interpretation</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============================================================
+     M1 — RATIONALE
+     ============================================================ -->
+<div class="movement" id="rationale">
+  <div class="l-body">
+    <span class="movement-label">Movement 01</span>
+    <h2>1. Rationale</h2>
+
+    <p class="dropcap">The one-way ANOVA is a special case of the general linear model. It compares the means of $k$ groups ($k \ge 3$) defined by a single categorical factor, partitioning the total observed variance into a component explained by the group and a residual one:</p>
+
+    <div class="formula-box">
+      <span class="formula-label">Variance Partitioning and F-Statistic</span>
+      $$ SS_{tot} = SS_{between} + SS_{within} $$
+      $$ F = \frac{MS_{between}}{MS_{within}} = \frac{SS_{between}/(k-1)}{SS_{within}/(N-k)} $$
+    </div>
+
+    <p>The crucial starting point is that ANOVA is an <em>omnibus</em> test: the null hypothesis is $H_0: \mu_1=\mu_2=...=\mu_k$. A significant F-value merely indicates that <strong>at least one mean differs from the others</strong> — not which one, not how many, nor in what direction. Therefore, a post-hoc test is not an optional accessory but a structural necessity if your biological question is "who differs from whom."</p>
+
+    <div class="callout">
+      <span class="callout-title">Independence between and within groups</span>
+      <p>These represent two distinct types of violations. <strong>Between groups:</strong> an observation in group A must not influence those in group B (e.g., placing treatments in the same non-randomized experimental block). <strong>Within the group:</strong> replicates must be strictly independent of one another. For example, if you measure 30 larvae sourced from only 3 egg masses, your effective $n$ is closer to 3, not 30 (pseudoreplication).</p>
+      <p>This is the model's non-negotiable requirement. While normality and homoscedasticity can be tested on the observed data, independence cannot — it strictly depends on the upstream experimental design. If violated, the standard errors calculated by the model will be systematically too small, yielding a falsely low p-value, regardless of how impeccably clean the residuals may look.</p>
+    </div>
+  </div>
+</div>
+
+<div class="movement-sep"><span>Criteria for use</span></div>
+
+<!-- ============================================================
+     M2 — WHEN TO USE IT
+     ============================================================ -->
+<div class="movement" id="usage">
+  <div class="l-body">
+    <span class="movement-label">Movement 02</span>
+    <h2>2. When to use it</h2>
+
+    <p>You use it when you have a single factor with $\ge 3$ levels and a continuous or "continuous-like" response variable, alongside independent observations between groups (whether balanced or unbalanced). It serves as the correct alternative to running multiple pairwise t-tests, a practice that drastically inflates the family-wise Type I error rate (e.g., with 5 groups and 10 pairwise comparisons, at $\alpha=0.05$, the probability of obtaining at least one false positive jumps to ~40%).</p>
+
+    <div class="callout">
+      <span class="callout-title">What does "continuous-like" mean?</span>
+      <p>ANOVA assumes Gaussian residuals. Some discrete variables behave well enough to be treated as continuous — but this decision cannot be based on intuition; it must be verified. A concrete, quantifiable example is event counting modeled by a Poisson distribution, where the skewness is $1/\sqrt{\lambda}$ ($\lambda$ being the mean of the counts).</p>
+      <p>With a <strong>large</strong> $\lambda$ (e.g., eggs laid per female, mean ~100 over a range of 40–250), the skewness is very small. The distribution approaches normality, meaning the residuals of an ANOVA can be acceptably Gaussian. With a <strong>small</strong> $\lambda$ (e.g., emerged parasitoids per host, mean ~1.5 over a range of 0–6, with an abundance of zeros), the skewness is high. The distribution remains heavily skewed with mass concentrated on the lower values. In this scenario, ANOVA is conceptually inadequate regardless of the Shapiro-Wilk test outcome — you need a Poisson or quasi-Poisson GLM.</p>
+      <p>The operational rule remains single and straightforward: <strong>you verify the behavior of the model's residuals</strong>, you do not blindly assume it based on the inherent nature of the variable.</p>
+    </div>
+
+    <p><em>(Repeated measures exhibit a different error structure and warrant a separate article — they are not covered here to avoid confusion with the one-way design).</em></p>
+  </div>
+</div>
+
+<div class="movement-sep"><span>The Assumptions</span></div>
+
+<!-- ============================================================
+     M3 — ASSUMPTIONS
+     ============================================================ -->
+<div class="movement" id="assumptions">
+  <div class="l-body">
+    <span class="movement-label">Movement 03</span>
+    <h2>3. Assumptions</h2>
+
+    <p>The underlying mathematical model is:</p>
+    
+    <div class="formula-box">
+      <span class="formula-label">Linear Model</span>
+      $$ y_{ij} = \mu + \tau_i + \varepsilon_{ij} \quad \text{where} \quad \varepsilon_{ij} \sim N(0, \sigma^2) \text{ i.i.d.} $$
+    </div>
+
+    <p>The fundamental requirements are three: <strong>independence</strong> (discussed above), <strong>homoscedasticity</strong> (equal variances, checked via Levene's test or Fligner-Killeen as a more robust alternative), and <strong>normality of the residuals</strong>.</p>
+
+    <div class="callout">
+      <span class="callout-title">Why the residuals and not the raw data?</span>
+      <p>The model explicitly assumes the normality of the error, not the raw response. The raw data consists of $\mu + \tau_i$ (the systematic component, which differs per group) plus $\varepsilon_{ij}$ (the noise). Running a Shapiro-Wilk test on aggregated raw data effectively means testing the normality of a mixture of distributions with distinct means. Even with perfectly Gaussian noise within each group, pooling widely separated groups can produce a multimodal distribution, prompting you to reject a model that is actually entirely appropriate.</p>
+      <p>The residuals $\hat{\varepsilon}_{ij} = y_{ij} - \bar{y}_i$ strip away the group effect: what remains is strictly the error component. That is exactly where the assumption must be verified, because that is where the mathematical model demands it. Running a Shapiro test on <code>Measurement</code> instead of <code>residuals(mod)</code> is a pervasive methodological flaw, not a mere stylistic preference.</p>
+    </div>
+
+    <p>With large and balanced sample sizes, ANOVA is reasonably robust to moderate deviations from normality; however, with small and unbalanced samples, it becomes quite fragile.</p>
+  </div>
+</div>
+
+<div class="movement-sep"><span>Limits and Alternatives</span></div>
+
+<!-- ============================================================
+     M4 — ERRORS AND LIMITATIONS
+     ============================================================ -->
+<div class="movement" id="errors">
+  <div class="l-body">
+    <span class="movement-label">Movement 04</span>
+    <h2>4. Common errors and intrinsic limitations</h2>
+
+    <p><strong>The most prevalent interpretive errors include:</strong> testing for normality on the wrong data; executing multiple t-tests instead of a proper post-hoc test; using Tukey's HSD even with heterogeneous variances, where Games-Howell is required; evaluating the p-value without the effect size (thereby conflating statistical significance with biological relevance); misinterpreting a non-significant F-value as "no effect" rather than "insufficient statistical power"; and applying ANOVA to mortality percentages without proper transformation or without transitioning to a binomial GLM.</p>
+
+    <p><strong>Regarding intrinsic limitations:</strong> ANOVA does not natively handle hierarchical nested structures (a GLMM is required), it is highly sensitive to outliers because it relies on squared deviations, and with severely unbalanced groups, the partitioning of the sums of squares (Type I, II, III) becomes ambiguous.</p>
+
+    <p><strong>Alternatives when an assumption fails:</strong></p>
+    <ul class="prop-list">
+      <li>Heteroscedasticity → Welch's ANOVA</li>
+      <li>Severe non-normality / ordinal data → Kruskal-Wallis</li>
+      <li>Very small $n$ → Permutation tests</li>
+      <li>Counts / proportions → GLM</li>
+      <li>Nested structure → GLMM</li>
+      <li>Influential outliers → Robust ANOVA on trimmed means (e.g., <code>WRS2::t1way</code>)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="movement-sep"><span>The Implementation</span></div>
+
+<!-- ============================================================
+     M5 — R PRACTICE
+     ============================================================ -->
+<div class="movement" id="practice">
+  <div class="l-wide">
+    <span class="movement-label">Movement 05</span>
+    <h2>5. Practical example in R</h2>
+
+    <div class="r-box">
+      <div class="r-box-header">
+        <div class="r-box-title">
+          <span class="r-tag">R</span>
+          <span>One-Way ANOVA Analysis</span>
+        </div>
+      </div>
+<pre><code class="language-r">set.seed(42)
+data_df <- data.frame(
+  weight = c(rnorm(15, 12, 1.5), rnorm(15, 13.2, 1.5),
+             rnorm(15, 11.8, 1.5), rnorm(15, 14.0, 1.5)),
+  pop = factor(rep(c("A","B","C","D"), each = 15))
+)
+
+# Model construction
+mod <- aov(weight ~ pop, data = data_df)
+
+# Checking Assumptions (On the residuals!)
+shapiro.test(residuals(mod))
+car::leveneTest(weight ~ pop, data = data_df)
+
+# Global result (Omnibus test)
+summary(mod)
+
+# If variances were found to be heterogeneous:
+oneway.test(weight ~ pop, data = data_df, var.equal = FALSE)
+
+# Post-Hoc Test
+TukeyHSD(mod)
+
+# Effect Size
+effectsize::eta_squared(mod, partial = FALSE)</code></pre>
+    </div>
+  </div>
+</div>
+
+<div class="movement-sep"><span>Reading the numbers</span></div>
+
+<!-- ============================================================
+     M6 — INTERPRETATION
+     ============================================================ -->
+<div class="movement" id="interpretation">
+  <div class="l-body">
+    <span class="movement-label">Movement 06</span>
+    <h2>6. Interpreting the results</h2>
+
+    <p>Every segment of the output must be read in a strict sequence: first the omnibus test, then the post-hoc, and finally the effect size. Skipping a step or reading them out of order is the leading cause of flawed conclusions.</p>
+
+    <h3>6.1 — The ANOVA table (Omnibus Test)</h3>
+    <div class="r-box" style="margin: 1.5rem 0;">
+      <div class="r-output">            Df Sum Sq Mean Sq F value   Pr(>F)    
+pop          3  85.4   28.47   12.63  3.2e-06 ***
+Residuals   56 126.3    2.26</div>
+    </div>
+    
+    <p><strong>Checking the Degrees of Freedom (Df):</strong> For the factor, it is $k-1$; for the residuals, it is $N-k$. With 4 groups and 15 replicates each ($N=60$), we expect $Df_{pop} = 3$ and $Df_{res} = 56$. If the output displays different numbers (e.g., 54), something went wrong with the data input (unhandled NAs, or incorrectly spelled factor levels). Checking the Df must be done <em>before</em> looking at the p-value.</p>
+
+    <p><strong>What you can conclude:</strong> "The population factor has a statistically significant effect on pupal weight ($F_{3,56} = 12.63, p < 0.001$)." <strong>What you cannot say:</strong> "Population D is heavier than A" — the ANOVA table solely indicates that a difference exists <em>somewhere</em> among the groups.</p>
+
+    <h3>6.2 — The post-hoc (Where the differences lie)</h3>
+    <div class="r-box" style="margin: 1.5rem 0;">
+      <div class="r-output">  contrast estimate    SE df t.ratio p.value 
+  A - B       -1.20 0.549 56  -2.186  0.1421 
+  A - C        0.15 0.549 56   0.273  0.9930 
+  A - D       -2.05 0.549 56  -3.734  0.0027 
+  B - C        1.35 0.549 56   2.459  0.0765 
+  B - D       -0.85 0.549 56  -1.548  0.4173 
+  C - D       -2.20 0.549 56  -4.007  0.0011</div>
+    </div>
+
+    <p>Tukey's HSD compares the groups pairwise, appropriately penalizing the p-values for multiple comparisons. Only A-D and C-D drop below the significance threshold.</p>
+    
+    <div class="callout">
+      <span class="callout-title">A common logical fallacy</span>
+      <p>The fact that B-D is not significant ($p=0.42$) does not mean that populations B and D have an identical weight — it merely indicates that, given this specific sample size, there is insufficient evidence to confidently assert that they are different. Failing to demonstrate a difference is absolutely not equivalent to proving that a difference does not exist.</p>
+    </div>
+
+    <h3>6.3 — The Effect Size (How much it matters)</h3>
+    <div class="formula-box" style="margin-top: 1rem;">
+      <span class="formula-label">Eta Squared ($\eta^2$)</span>
+      $$ \eta^2 = \frac{SS_{between}}{SS_{total}} = \frac{85.4}{85.4+126.3} \approx 0.40 $$
+    </div>
+
+    <p>This metric indicates that the population factor explains approximately 40% of the total variability observed in the data. An effect size acts as a vital counterweight to the p-value: it distinguishes purely statistical significance (e.g., with $N=1000$, even trivial differences yield $p < 0.05$) from genuine <strong>biological relevance</strong>. <em>(Note: with small sample sizes, $\omega^2$ is generally preferred, as $\eta^2$ tends to overestimate the true effect in the population)</em>.</p>
+
+    <h3>6.4 — Final Checklist</h3>
+    <ul class="prop-list">
+      <li>Verified assumptions on the residuals (not on the raw data).</li>
+      <li>Reported F, df, and p-value for the omnibus test.</li>
+      <li>Explicitly declared the post-hoc method utilized (e.g., Tukey, Games-Howell).</li>
+      <li>Reported the direction and magnitude of the mean differences.</li>
+      <li>Included the effect size ($\eta^2$ or $\omega^2$) alongside the p-value.</li>
+      <li>Abstained from making absolute claims of equality between non-significant pairs.</li>
+    </ul>
+
+    <h2>7. Graphical Representation</h2>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Plot Type</th><th>Strengths</th><th>Limitations / Watch out</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Barplot</strong> (+ letters)</td><td>A widespread standard in entomology/agronomy publishing; easy to pair with Tukey's letters.</td><td>Conceals the true underlying distribution and sample size (often dubbed the "dynamite plot").</td></tr>
+        <tr><td><strong>Boxplot</strong></td><td>Displays the median, quartiles, real dispersion, and actual outliers.</td><td>Does not explicitly plot the mean (which is what ANOVA actually makes inferences about).</td></tr>
+        <tr><td><strong>Dotplot / Jitter</strong></td><td>Exposes every single observation, revealing confusing clusters or pseudoreplication.</td><td>Can become cluttered and illegible with very large sample sizes.</td></tr>
+        <tr><td><strong>Violin Plot</strong></td><td>Excellent for showcasing density, skewness, and bimodal distributions.</td><td>Requires an adequate $n$; otherwise, the density curve is essentially just noise.</td></tr>
+      </tbody>
+    </table>
+
+    <p>During the exploratory phase, dotplots and boxplots are vastly superior because they hide nothing. For the final manuscript figure, always consult the specific formatting guidelines of your target journal.</p>
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <p><strong style="color:rgba(255,255,255,.85)">Statistics for Life Sciences</strong> — Open access teaching materials</p>
+    <p style="margin-top:.8rem; color:rgba(255,255,255,.3); font-size:.78rem">
+      Generated and adapted for web layout &middot; Notebook 03: ANOVA
+    </p>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    hljs.highlightAll();
+    document.getElementById('anno').textContent = new Date().getFullYear();
+  });
+</script>
+</body>
+</html>
